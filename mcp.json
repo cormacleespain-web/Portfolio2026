@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "html.to.design": {
+      "command": "uvx",
+      "args": [
+        "mcp-proxy",
+        "--transport",
+        "streamablehttp",
+        "https://h2d-mcp.divriots.com/a499f953-f111-459b-b3ef-6e00e0f8a9e8/mcp"
+      ]
+    }
+  }
+}

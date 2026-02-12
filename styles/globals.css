@@ -1,0 +1,379 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light theme (default when no .dark class) */
+:root {
+  --color-background: #fafaf9;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f5f5f4;
+
+  --color-text: #1c1917;
+  --color-text-muted: #57534e;
+  --color-text-subtle: #78716c;
+
+  --color-accent: #0d9488;
+  --color-accent-hover: #0f766e;
+  --color-accent-muted: #ccfbf1;
+
+  --color-border: #e7e5e4;
+  --color-border-subtle: #f5f5f4;
+}
+
+/* Dark theme */
+html.dark {
+  --color-background: #0c0a09;
+  --color-surface: #1c1917;
+  --color-surface-hover: #292524;
+
+  --color-text: #fafaf9;
+  --color-text-muted: #a8a29e;
+  --color-text-subtle: #78716c;
+
+  --color-accent: #2dd4bf;
+  --color-accent-hover: #5eead4;
+  --color-accent-muted: #134e4a;
+
+  --color-border: #292524;
+  --color-border-subtle: #1c1917;
+}
+
+/* Page grid: 4U / 8U / 12U / 16U / 20U at respective breakpoints */
+:root {
+  --grid-gap: 1.5rem;
+  --grid-cols: 4;
+}
+@media (min-width: 640px) {
+  :root { --grid-cols: 8; }
+}
+@media (min-width: 768px) {
+  :root { --grid-cols: 12; }
+}
+@media (min-width: 1024px) {
+  :root { --grid-cols: 16; }
+}
+@media (min-width: 1280px) {
+  :root { --grid-cols: 20; }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+  body {
+    @apply antialiased;
+    color: var(--color-text);
+    background: var(--color-background);
+    overflow-x: hidden;
+  }
+  /* Offset for floating bottom nav when scrolling to anchor */
+  section[id] {
+    scroll-margin-bottom: 5rem;
+  }
+}
+
+/* Floating nav: same animated conic-gradient glow as experience featured card */
+.floating-nav-glow {
+  position: relative;
+  overflow: visible;
+}
+.floating-nav-glow-inner {
+  position: absolute;
+  inset: -8px;
+  z-index: -1;
+  border-radius: 9999px;
+  --glow-angle: 0deg;
+  background: conic-gradient(
+    from var(--glow-angle),
+    var(--color-accent),
+    #7c3aed,
+    #ec4899,
+    var(--color-accent)
+  );
+  filter: blur(10px);
+  opacity: 0.5;
+  animation: glow-gradient-spin 8s linear infinite;
+  pointer-events: none;
+}
+
+@layer components {
+  .page-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+    gap: var(--grid-gap);
+    width: 100%;
+  }
+  .page-grid-span-full {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Animated gradient border for experience cards */
+@keyframes gradient-border-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Animate gradient angle so colours move; shape stays fixed */
+@property --glow-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes glow-gradient-spin {
+  to {
+    --glow-angle: 360deg;
+  }
+}
+
+@keyframes underglow-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Outer wrapper: card-shaped underglow that follows the card contour */
+.exp-featured-outer {
+  position: relative;
+  overflow: visible;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.06);
+}
+
+/* Underglow: fixed shape; only the gradient colours move (no element rotation) */
+.exp-featured-outer::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  z-index: -1;
+  border-radius: calc(0.75rem + 2px);
+  --glow-angle: 0deg;
+  background: conic-gradient(
+    from var(--glow-angle),
+    var(--color-accent),
+    #7c3aed,
+    #ec4899,
+    var(--color-accent)
+  );
+  filter: blur(6px);
+  opacity: 0.5;
+  animation: glow-gradient-spin 8s linear infinite;
+}
+
+/* Selected work cards: underglow on hover (same as featured employer card) */
+.selected-work-glow-outer {
+  position: relative;
+  overflow: visible;
+  border-radius: 0.75rem;
+}
+
+.selected-work-glow-outer::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  z-index: -1;
+  border-radius: calc(0.75rem + 2px);
+  --glow-angle: 0deg;
+  background: conic-gradient(
+    from var(--glow-angle),
+    var(--color-accent),
+    #7c3aed,
+    #ec4899,
+    var(--color-accent)
+  );
+  filter: blur(6px);
+  opacity: 0;
+  animation: glow-gradient-spin 8s linear infinite;
+  transition: opacity 0.3s ease;
+}
+
+.selected-work-glow-outer:hover::after {
+  opacity: 0.5;
+}
+
+/* Theme toggle: top-corner glow on light-bulb hover — small, round */
+.theme-toggle-glow {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 140px;
+  height: 140px;
+  transform: translate(40%, -40%);
+  border-radius: 50%;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.theme-toggle-glow.theme-toggle-glow-visible {
+  opacity: 1;
+}
+/* Light mode: dark subtle blackish glow (same interaction as dark mode) */
+.theme-toggle-glow {
+  background: radial-gradient(
+    circle at 70% 30%,
+    rgba(28, 25, 23, 0.35) 0%,
+    rgba(12, 10, 9, 0.15) 50%,
+    transparent 75%
+  );
+  filter: blur(14px);
+}
+/* Dark mode: same gradient glow as featured employer card, animated */
+html.dark .theme-toggle-glow {
+  --glow-angle: 0deg;
+  background: conic-gradient(
+    from var(--glow-angle),
+    var(--color-accent),
+    #7c3aed,
+    #ec4899,
+    var(--color-accent)
+  );
+  filter: blur(20px);
+  opacity: 0;
+  animation: glow-gradient-spin 8s linear infinite;
+}
+html.dark .theme-toggle-glow.theme-toggle-glow-visible {
+  opacity: 0.45;
+}
+
+.exp-gradient-border {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  /* Prevent gradient from being clipped when rotating (need space for diagonal) */
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+.exp-gradient-border::before {
+  content: "";
+  position: absolute;
+  /* Large enough that at any rotation the border ring is never clipped */
+  width: 300%;
+  height: 300%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+  background: conic-gradient(
+    from 0deg,
+    var(--color-accent),
+    #7c3aed,
+    #ec4899,
+    var(--color-accent)
+  );
+  animation: gradient-border-spin 6s linear infinite;
+}
+
+.exp-gradient-border-inner {
+  position: relative;
+  z-index: 1;
+  border-radius: calc(0.75rem - 2px);
+  background: var(--color-surface);
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+/* ----- Shooting star background (home page) ----- */
+.starfield .star {
+  box-shadow: 0 0 2px 1px rgba(255, 255, 255, 0.6);
+  animation: star-twinkle 3s ease-in-out infinite;
+}
+/* Dark mode: stars more visible; light mode: very subtle (animation still runs) */
+:root .starfield .star {
+  --star-base: 0.28;
+}
+html.dark .starfield .star {
+  --star-base: 0.55;
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: var(--star-base, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    opacity: calc(var(--star-base, 0.4) * 1.8);
+    transform: scale(1.2);
+  }
+}
+
+/* Shooting star streak: long thin gradient line (hidden on mobile to avoid streaking) */
+.shooting-star {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 20%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.08) 80%,
+    transparent 100%
+  );
+  transform: rotate(-45deg);
+  transform-origin: left center;
+  animation: shooting-star-fly 2s ease-out infinite;
+  opacity: 0;
+}
+@media (max-width: 767px) {
+  .shooting-star {
+    display: none;
+  }
+}
+/* Dark mode: brighter shooting stars */
+html.dark .shooting-star {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.15) 80%,
+    transparent 100%
+  );
+}
+
+@keyframes shooting-star-fly {
+  0% {
+    transform: rotate(-45deg) translate(-100vw, -100vh);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: rotate(-45deg) translate(100vw, 100vh);
+    opacity: 0;
+  }
+}
+
+/* Stagger shooting stars so they don’t all fire at once */
+.shooting-star-1 { animation-delay: 0s; }
+.shooting-star-2 { animation-delay: 3.2s; }
+.shooting-star-3 { animation-delay: 6.8s; }
+.shooting-star-4 { animation-delay: 10s; }
+.shooting-star-5 { animation-delay: 14.5s; }
+
+/* Longer cycle so repeats feel natural */
+.shooting-star-1 { animation-duration: 2s; }
+.shooting-star-2 { animation-duration: 2.2s; }
+.shooting-star-3 { animation-duration: 1.8s; }
+.shooting-star-4 { animation-duration: 2.4s; }
+.shooting-star-5 { animation-duration: 2.1s; }
+
