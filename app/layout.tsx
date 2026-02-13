@@ -5,6 +5,7 @@ import { PageShell } from "@/components/ui/PageShell";
 import { ScrollToHash } from "@/components/ui/ScrollToHash";
 import { FloatingNav } from "@/components/ui/FloatingNav";
 import { TopRightNav } from "@/components/ui/TopRightNav";
+import { Analytics } from "@vercel/analytics/next";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -45,6 +46,7 @@ export default function RootLayout({
             <div className="page-grid-span-full min-w-0">{children}</div>
           </PageShell>
         </main>
+        <Analytics />
       </body>
     </html>
   );
