@@ -134,7 +134,9 @@ export function FloatingNav() {
         <div className="floating-nav-glow-inner" aria-hidden />
 
         <div className="relative flex h-14 items-center gap-1 rounded-full border border-white/10 bg-neutral-900/95 px-4 py-2.5 shadow-lg backdrop-blur-md dark:bg-neutral-950/95 dark:border-white/5">
-        {navItems.map(({ href, label, icon }) => {
+        {navItems.map((item) => {
+          const { href, label } = item;
+          const icon = "icon" in item && item.icon;
           const isHash = href.startsWith("/#");
           const samePage = isHome && isHash;
           const className =

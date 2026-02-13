@@ -95,7 +95,9 @@ export function NoiseSphereScene({
       duration: 5,
       ease: "power3.inOut",
     });
-    return () => tl.kill();
+    return () => {
+      tl.kill();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, []);
 
@@ -119,9 +121,7 @@ export function NoiseSphereScene({
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={N}
-            array={particlePositions}
-            itemSize={3}
+            args={[particlePositions, 3]}
           />
         </bufferGeometry>
         <shaderMaterial
