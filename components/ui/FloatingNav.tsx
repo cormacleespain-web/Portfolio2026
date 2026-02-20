@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, type ReactElement } from "react";
 
 const STORAGE_KEY = "theme";
 
@@ -100,7 +100,7 @@ type NavItem = {
   href: string;
   label: string;
   icon?: boolean;
-  mobileIcon?: (() => JSX.Element) | null;
+  mobileIcon?: (() => ReactElement) | null;
 };
 
 const navItems: NavItem[] = [
