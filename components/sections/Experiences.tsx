@@ -10,6 +10,59 @@ function getFaviconUrl(companyUrl: string): string | null {
   }
 }
 
+const MONTHS: Record<string, number> = {
+  Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6,
+  Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12,
+};
+
+/** Parse "Jul 2025 – Present" or "Aug 2024 – Jul 2025" into sortable keys and display parts. */
+function parseTimeframe(tf: string): { startKey: number; endKey: number; startDisplay: string; endDisplay: string } | null {
+  const match = tf.match(/^(\w{3})\s+(\d{4})\s*[–-]\s*(\w{3}\s+\d{4}|Present)$/);
+  if (!match) return null;
+  const [, startMonth, startYear, endPart] = match;
+  const startM = MONTHS[startMonth as keyof typeof MONTHS];
+  const startY = parseInt(startYear, 10);
+  const startKey = startY * 100 + (startM ?? 0);
+  const startDisplay = `${startMonth} ${startYear}`;
+  let endKey: number;
+  let endDisplay: string;
+  if (endPart === "Present") {
+    endKey = 999912;
+    endDisplay = "Present";
+  } else {
+    const [endMonth, endYear] = endPart.trim().split(/\s+/);
+    const endM = MONTHS[endMonth as keyof typeof MONTHS];
+    const endY = parseInt(endYear, 10);
+    endKey = endY * 100 + (endM ?? 0);
+    endDisplay = `${endMonth} ${endYear}`;
+  }
+  return { startKey, endKey, startDisplay, endDisplay };
+}
+
+/** Return one timeframe string spanning earliest start to latest end across all roles. */
+function getEarliestLatestTimeframe(roles: { timeframe: string }[]): string {
+  let earliestStart = 999912;
+  let latestEnd = 0;
+  let earliestDisplay = "";
+  let latestDisplay = "";
+  for (const r of roles) {
+    const p = parseTimeframe(r.timeframe);
+    if (!p) continue;
+    if (p.startKey < earliestStart) {
+      earliestStart = p.startKey;
+      earliestDisplay = p.startDisplay;
+    }
+    if (p.endKey > latestEnd) {
+      latestEnd = p.endKey;
+      latestDisplay = p.endDisplay;
+    }
+  }
+  if (earliestDisplay === "" && latestDisplay === "") {
+    return roles[0]?.timeframe ?? "";
+  }
+  return `${earliestDisplay} – ${latestDisplay}`;
+}
+
 /** Group experiences by company (and timelineGroup when set); order by first occurrence in list. */
 function groupByCompany(
   experiences: typeof siteData.experiences
@@ -37,12 +90,9 @@ function groupByCompany(
   return order.map((key) => map.get(key)!);
 }
 
-function TimelineNode({ timeframe }: { timeframe: string }) {
+function TimelineNode() {
   return (
-    <div className="flex flex-col items-center gap-1.5 shrink-0">
-      <span className="rounded-md border border-border bg-surface px-2 py-0.5 text-caption font-medium text-text-muted">
-        {timeframe}
-      </span>
+    <div className="flex flex-col items-center justify-center shrink-0">
       <span
         className="h-3 w-3 rounded-full border-2 border-accent bg-surface"
         aria-hidden
@@ -125,8 +175,13 @@ export function Experiences() {
   const groups = groupByCompany(siteData.experiences);
 
   return (
-    <Section id="experience" title="Experience">
-      <div className="relative">
+    <Section
+      id="experience"
+      title="Experience timeline"
+      headerClassName="md:text-center"
+      titleClassName="text-2xl md:text-3xl font-bold text-text dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]"
+    >
+      <div className="relative md:mx-auto md:max-w-4xl">
         {/* Vertical line – through node center on mobile, page center on desktop */}
         <div
           className="absolute left-[1.125rem] top-0 bottom-0 w-px bg-border md:left-1/2 md:-translate-x-px"
@@ -137,25 +192,37 @@ export function Experiences() {
           {groups.map((group, i) => {
             const isLeft = i % 2 === 0;
             const nodeTimeframe =
-              group.roles.length > 0 ? group.roles[0].timeframe : "";
+              group.roles.length > 0 ? getEarliestLatestTimeframe(group.roles) : "";
 
             return (
               <li
                 key={group.company}
-                className="relative grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-x-6"
+                className="relative grid grid-cols-[2.25rem_minmax(0,1fr)] grid-rows-[auto_auto] gap-x-4 gap-y-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-x-6 md:gap-y-4"
               >
-                <div className="col-start-1 row-start-1 flex justify-center pt-1 md:col-start-2 md:px-2">
-                  <TimelineNode timeframe={nodeTimeframe} />
+                {/* Row 1: DateTime pill – timeline line goes through the left of the pill */}
+                <div className="col-span-2 col-start-1 row-start-1 flex md:col-span-1 md:col-start-2 md:col-end-3">
+                  <span className="whitespace-nowrap rounded-md border border-border bg-surface px-2 py-0.5 text-caption font-medium text-text-muted">
+                    {nodeTimeframe}
+                  </span>
+                </div>
+
+                {/* Row 2: Node | Employment card – dot top aligned with card content (h3) via same padding as card */}
+                <div
+                  className={`col-start-1 row-start-2 flex justify-center md:col-start-2 md:px-2 ${
+                    i === 0 ? "pt-[calc(1rem+2px)] md:pt-[calc(1rem+2px)]" : "pt-4 md:pt-4"
+                  }`}
+                >
+                  <TimelineNode />
                 </div>
 
                 <div
-                  className={`col-start-2 row-start-1 min-w-0 pl-0 md:pl-0 ${
+                  className={`col-start-2 row-start-2 flex min-w-0 items-start pl-0 md:pl-0 ${
                     isLeft
                       ? "md:col-start-1 md:pr-6"
                       : "md:col-start-3 md:pl-6"
-                  }`}
+                  } ${i > 0 ? "pl-4 md:pl-6 md:ml-[1.25rem]" : ""}`}
                 >
-                  <div className={`max-w-sm ${isLeft ? "md:ml-auto" : ""}`}>
+                  <div className={`max-w-sm ${i > 0 ? "w-[21rem]" : ""} ${isLeft ? "md:ml-auto" : ""}`}>
                     <CompanyCard
                       company={group.company}
                       companyUrl={group.companyUrl}

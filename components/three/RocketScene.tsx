@@ -62,7 +62,11 @@ export function RocketScene({
           positionX={scenePositionX}
         />
         {controls && (
-          <OrbitControls enablePan={false} enableZoom={false} />
+          <OrbitControls
+            enablePan={false}
+            enableZoom={false}
+            target={[scenePositionX, 0, 0]}
+          />
         )}
       </Canvas>
     </div>

@@ -7,6 +7,10 @@ interface SectionProps {
   children: ReactNode;
   /** Extra class for the section element */
   className?: string;
+  /** Extra class for the header wrapper */
+  headerClassName?: string;
+  /** Extra class for the title (h2) */
+  titleClassName?: string;
 }
 
 /**
@@ -19,6 +23,8 @@ export function Section({
   subtitle,
   children,
   className = "",
+  headerClassName = "",
+  titleClassName = "",
 }: SectionProps) {
   return (
     <section
@@ -26,10 +32,10 @@ export function Section({
       className={`py-12 md:py-16 ${className}`.trim()}
       aria-labelledby={id ? `${id}-heading` : undefined}
     >
-      <header className="mb-8">
+      <header className={`mb-8 ${headerClassName}`.trim()}>
         <h2
           id={id ? `${id}-heading` : undefined}
-          className="text-section font-semibold uppercase tracking-wider text-text-muted"
+          className={titleClassName || "text-section font-semibold uppercase tracking-wider text-text-muted"}
         >
           {title}
         </h2>

@@ -87,12 +87,12 @@ export interface SiteData {
 
 export const siteData: SiteData = {
   hero: {
-    positioningLine: "Product Designer who advocates for the user and aims to drive business growth.",
+    positioningLine: "Senior Product Designer designing the products behind global decision-making",
     name: "Cormac Lee",
     supportingText:
-      "I'm a UX/UI Designer focused on human-centred design, accessibility, and clear information architecture. I work from research through to delivery—turning complexity into intuitive experiences that work for users and support business goals.",
-    ctaPrimary: { label: "View work", href: "/#selected-works" },
-    ctaSecondary: { label: "View résumé", href: "/resume.pdf" },
+      "Leading end-to-end product design for Wizeline & DowJones from discovery and IA to delivery, adoption and scale. Trusted by product and engineering leadership to modernize legacy platforms, define AI-ready workflows, and ship multi-product migrations.",
+    ctaPrimary: { label: "View Case Studies", href: "/#selected-works" },
+    ctaSecondary: { label: "See How I lead", href: "/#experience" },
   },
 
   experiences: [

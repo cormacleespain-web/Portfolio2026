@@ -41,7 +41,7 @@ export default function RootLayout({
         <TopRightNav />
         <FloatingNav />
         <main>
-          <PageShell as="main" className="pb-28 pt-8">
+          <PageShell as="main" className="pb-28 pt-4">
             <div className="page-grid-span-full min-w-0">{children}</div>
           </PageShell>
         </main>
