@@ -110,17 +110,41 @@ const navItems: NavItem[] = [
   { href: "/#contact", label: "Contact", mobileIcon: EmailIcon },
 ];
 
+type HoverRect = { left: number; top: number; width: number; height: number } | null;
+
 export function FloatingNav() {
   const pathname = usePathname();
   const [dark, setDark] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuClosing, setMobileMenuClosing] = useState(false);
+  const [hoverGlowRect, setHoverGlowRect] = useState<HoverRect>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const desktopNavRef = useRef<HTMLElement>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const closeMobileMenu = () => {
+    if (mobileMenuClosing) return;
+    setMobileMenuClosing(true);
+  };
+
+  useEffect(() => {
+    if (!mobileMenuClosing) return;
+    const duration = 280 + (navItems.length - 1) * 45;
+    closeTimeoutRef.current = setTimeout(() => {
+      setMobileMenuOpen(false);
+      setMobileMenuClosing(false);
+      closeTimeoutRef.current = null;
+    }, duration);
+    return () => {
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    };
+  }, [mobileMenuClosing]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target as Node)) {
-        setMobileMenuOpen(false);
+        closeMobileMenu();
       }
     }
     if (mobileMenuOpen) {
@@ -181,7 +205,6 @@ export function FloatingNav() {
   return (
     <div
       className="fixed inset-x-0 bottom-0 z-[100] flex justify-center items-center gap-3 pb-6 pointer-events-none"
-      aria-hidden
     >
       {/* Mobile / tablet: floating hamburger; when open, theme (icon only) to the left and stacked options above (Home, Work, About, Contact) with glow */}
       <div ref={mobileMenuRef} className="md:hidden pointer-events-auto fixed right-4 bottom-6 flex flex-col items-end gap-3">
@@ -210,7 +233,7 @@ export function FloatingNav() {
                     href={href}
                     className={optionClassName}
                     aria-label={label}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                   >
                     {content}
                   </a>
@@ -220,16 +243,19 @@ export function FloatingNav() {
                     prefetch={false}
                     className={optionClassName}
                     aria-label={label}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                   >
                     {content}
                   </Link>
                 );
+              const isClosing = mobileMenuClosing;
+              const optionAnimationClass = isClosing ? "mobile-nav-option-out" : "mobile-nav-option-in";
+              const optionAnimationDelay = isClosing ? index * 45 : (navItems.length - 1 - index) * 45;
               return (
                 <div
                   key={href}
-                  className="floating-nav-glow pointer-events-auto mobile-nav-option-in"
-                  style={{ animationDelay: `${(navItems.length - 1 - index) * 45}ms` }}
+                  className={`floating-nav-glow pointer-events-auto ${optionAnimationClass}`}
+                  style={{ animationDelay: `${optionAnimationDelay}ms` }}
                 >
                   <div className="floating-nav-glow-inner" aria-hidden />
                   {optionEl}
@@ -268,7 +294,14 @@ export function FloatingNav() {
               aria-expanded={mobileMenuOpen}
               onClick={(e) => {
                 e.stopPropagation();
-                setMobileMenuOpen((open) => !open);
+                if (mobileMenuClosing) {
+                  if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+                  setMobileMenuClosing(false);
+                } else if (mobileMenuOpen) {
+                  closeMobileMenu();
+                } else {
+                  setMobileMenuOpen(true);
+                }
               }}
               className="relative flex h-14 w-14 items-center justify-center rounded-full border border-neutral-300/80 bg-white/95 text-neutral-800 shadow-lg backdrop-blur-md transition hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-400/50 focus:ring-offset-2 focus:ring-offset-white dark:border-white/10 dark:bg-neutral-950/95 dark:text-white/90 dark:hover:bg-white/20 dark:hover:text-white dark:focus:ring-white/30 dark:focus:ring-offset-neutral-900"
             >
@@ -295,31 +328,87 @@ export function FloatingNav() {
         </div>
       </div>
 
-      {/* Desktop: nav pill */}
+      {/* Desktop: nav pill — hover glow is a sibling behind the pill so it never covers the menu */}
       <div className="hidden md:flex justify-center items-center gap-3">
         <nav
+          ref={desktopNavRef}
           className="floating-nav-glow pointer-events-auto"
           aria-label="Main navigation"
+          onMouseLeave={(e) => {
+            if (!desktopNavRef.current?.contains(e.relatedTarget as Node)) setHoverGlowRect(null);
+          }}
         >
           <div className="floating-nav-glow-inner" aria-hidden />
-          <div className="relative flex h-14 items-center gap-1 rounded-full border border-white/10 bg-neutral-900/95 px-4 py-2.5 shadow-lg backdrop-blur-md dark:bg-neutral-950/95 dark:border-white/5">
-            {navItems.map((item) => renderNavLink(item, false))}
-            <button
-              type="button"
-              role="switch"
-              aria-label={dark ? "Dark mode on. Switch to light mode." : "Light mode on. Switch to dark mode."}
-              aria-checked={dark}
-              onClick={handleThemeToggle}
-              onKeyDown={(e) => {
-                if (e.key === " " || e.key === "Enter") {
-                  e.preventDefault();
-                  handleThemeToggle();
-                }
+          <div
+            className={`floating-nav-hover-glow${hoverGlowRect ? " floating-nav-hover-glow-visible" : ""}`}
+            aria-hidden
+            style={
+              hoverGlowRect
+                ? {
+                    left: hoverGlowRect.left,
+                    top: hoverGlowRect.top,
+                    width: hoverGlowRect.width,
+                    height: hoverGlowRect.height,
+                    opacity: 0.65,
+                  }
+                : { opacity: 0, width: 0, height: 0, left: 0, top: 0 }
+            }
+          />
+          <div className="relative z-[1] flex h-14 items-center gap-1 rounded-full border border-white/10 bg-neutral-900/95 px-4 py-2.5 shadow-lg backdrop-blur-md dark:bg-neutral-950/95 dark:border-white/5">
+            {navItems.map((item) => (
+              <span
+                key={item.href}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget;
+                  const nav = desktopNavRef.current;
+                  if (!nav) return;
+                  const nr = nav.getBoundingClientRect();
+                  const er = el.getBoundingClientRect();
+                  const pad = 14;
+                  setHoverGlowRect({
+                    left: er.left - nr.left - pad,
+                    top: er.top - nr.top - pad,
+                    width: er.width + pad * 2,
+                    height: er.height + pad * 2,
+                  });
+                }}
+              >
+                {renderNavLink(item, false)}
+              </span>
+            ))}
+            <span
+              onMouseEnter={(e) => {
+                const el = e.currentTarget;
+                const nav = desktopNavRef.current;
+                if (!nav) return;
+                const nr = nav.getBoundingClientRect();
+                const er = el.getBoundingClientRect();
+                const pad = 14;
+                setHoverGlowRect({
+                  left: er.left - nr.left - pad,
+                  top: er.top - nr.top - pad,
+                  width: er.width + pad * 2,
+                  height: er.height + pad * 2,
+                });
               }}
-              className={iconButtonClassName}
             >
-              <LightBulbIcon on={dark} />
-            </button>
+              <button
+                type="button"
+                role="switch"
+                aria-label={dark ? "Dark mode on. Switch to light mode." : "Light mode on. Switch to dark mode."}
+                aria-checked={dark}
+                onClick={handleThemeToggle}
+                onKeyDown={(e) => {
+                  if (e.key === " " || e.key === "Enter") {
+                    e.preventDefault();
+                    handleThemeToggle();
+                  }
+                }}
+                className={iconButtonClassName}
+              >
+                <LightBulbIcon on={dark} />
+              </button>
+            </span>
           </div>
         </nav>
       </div>

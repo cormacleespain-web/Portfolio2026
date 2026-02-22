@@ -73,6 +73,92 @@ html.dark {
   }
 }
 
+/* Hero heading: orange asterisk + colored accent words (no italics) */
+.hero-heading-asterisk {
+  color: #f97316; /* orange-500 */
+}
+.dark .hero-heading-asterisk {
+  color: #fb923c; /* orange-400 */
+}
+.hero-heading-accent-green {
+  color: #4ade80; /* green-400 */
+}
+.dark .hero-heading-accent-green {
+  color: #86efac; /* green-300 */
+}
+.hero-heading-accent-blue {
+  color: #38bdf8; /* sky-300 */
+}
+.dark .hero-heading-accent-blue {
+  color: #7dd3fc; /* sky-200 */
+}
+.hero-heading-accent-pink {
+  color: #e879f9; /* fuchsia-400 */
+}
+.dark .hero-heading-accent-pink {
+  color: #f0abfc; /* fuchsia-300 */
+}
+
+/* When cover is active: hide main content and prevent any scroll so content stays at top */
+html.arrival-cover-active {
+  overflow: hidden;
+}
+html.arrival-cover-active body {
+  overflow: hidden;
+}
+html.arrival-cover-active #main-content {
+  visibility: hidden;
+}
+
+/* When cover is dismissed, fade in the main content */
+html.arrival-dismissed #main-content {
+  visibility: visible;
+  opacity: 0;
+  animation: main-content-fade-in 0.6s ease-out forwards;
+}
+@keyframes main-content-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.arrival-dismissed #main-content {
+    animation-duration: 0.2s;
+  }
+}
+
+/* Arrival cover canvas: black overlay (real DOM node) fades out over 4.5s to reveal canvas */
+.arrival-cover-canvas-wrap {
+  position: relative;
+}
+.arrival-cover-canvas-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #000;
+  pointer-events: none;
+  animation: arrival-canvas-reveal 4.5s ease-out 0s forwards;
+}
+.arrival-cover-canvas-wrap canvas {
+  background: #000 !important;
+}
+@keyframes arrival-canvas-reveal {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arrival-cover-canvas-overlay {
+    animation-duration: 1s;
+  }
+}
+
 /* Floating nav: same animated conic-gradient glow as experience featured card */
 .floating-nav-glow {
   position: relative;
@@ -97,13 +183,49 @@ html.dark {
   pointer-events: none;
 }
 
+/* Hover glow behind the pill (sibling of pill, z-index -1 so it stays behind menu) */
+.floating-nav-hover-glow {
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  --glow-angle: 0deg;
+  background: conic-gradient(
+    from var(--glow-angle),
+    var(--color-accent),
+    #7c3aed,
+    #ec4899,
+    var(--color-accent)
+  );
+  filter: blur(12px);
+  opacity: 0;
+  animation: glow-gradient-spin 8s linear infinite;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  transform-origin: center;
+}
+.floating-nav-hover-glow.floating-nav-hover-glow-visible {
+  animation: glow-gradient-spin 8s linear infinite, floating-nav-glow-swell 2.2s ease-in-out infinite;
+}
+@keyframes floating-nav-glow-swell {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .floating-nav-hover-glow {
+    transition: none;
+  }
+  .floating-nav-hover-glow.floating-nav-hover-glow-visible {
+    animation: glow-gradient-spin 8s linear infinite;
+  }
+}
+
 /* Other Works section: band has no mask; only the gradient layer is masked so content stays full opacity */
-.other-works-band {
+.people-worked-with-band {
   position: relative;
 }
 
 /* Gradient background layer only – mask applied here so title and cards are never faded */
-.other-works-band-bg {
+.people-worked-with-band-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -118,7 +240,7 @@ html.dark {
   background-size: 200% 100%;
   background-position: 0% 50%;
   opacity: 0.65;
-  animation: other-works-gradient-slide 12s ease-in-out infinite;
+  animation: people-worked-with-gradient-slide 12s ease-in-out infinite;
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
@@ -136,7 +258,7 @@ html.dark {
   mask-size: 100% 100%;
   -webkit-mask-size: 100% 100%;
 }
-@keyframes other-works-gradient-slide {
+@keyframes people-worked-with-gradient-slide {
   0%,
   100% {
     background-position: 0% 50%;
@@ -146,89 +268,65 @@ html.dark {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .other-works-band-bg {
+  .people-worked-with-band-bg {
     animation: none;
     background-position: 50% 50%;
   }
 }
 
-/* Other Works inner block: Liquid Glass – border highlight (light top/left, softer bottom/right) */
-.other-works-glass {
-  --glass-dark: rgba(0, 0, 0, 0.52);
-  background: var(--glass-dark);
-  backdrop-filter: blur(40px) saturate(1.4);
-  -webkit-backdrop-filter: blur(40px) saturate(1.4);
-  border-width: 1px;
-  border-style: solid;
-  border-top-color: rgba(255, 255, 255, 0.18);
-  border-right-color: rgba(255, 255, 255, 0.07);
-  border-bottom-color: rgba(255, 255, 255, 0.05);
-  border-left-color: rgba(255, 255, 255, 0.14);
-  box-shadow:
-    0 20px 50px -20px rgba(0, 0, 0, 0.4),
-    0 8px 24px -8px rgba(0, 0, 0, 0.25);
-  position: relative;
-  transform: translateZ(0);
-  isolation: isolate;
-  -webkit-font-smoothing: antialiased;
-  margin: -1px;
-}
-
-/* Top-right flare: light catching the curved edge (crescent highlight) */
-.other-works-glass::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 100% 60% at 100% 0%,
-    rgba(255, 255, 255, 0.22) 0%,
-    rgba(255, 255, 255, 0.12) 25%,
-    rgba(255, 255, 255, 0.04) 55%,
-    transparent 75%
-  );
-  backface-visibility: hidden;
-}
-
-/* Bottom-left depth: shadow opposite the light for rounded glass */
-.other-works-glass::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 85% 55% at 0% 100%,
-    rgba(0, 0, 0, 0.28) 0%,
-    rgba(0, 0, 0, 0.12) 35%,
-    rgba(0, 0, 0, 0.03) 60%,
-    transparent 80%
-  );
-  backface-visibility: hidden;
-}
-
-/* Mobile: darker glass, same border highlight */
-@media (max-width: 767px) {
-  .other-works-glass {
-    background: rgba(0, 0, 0, 0.68);
-    backdrop-filter: blur(24px) saturate(1.2);
-    -webkit-backdrop-filter: blur(24px) saturate(1.2);
-    border-top-color: rgba(255, 255, 255, 0.14);
-    border-right-color: rgba(255, 255, 255, 0.05);
-    border-bottom-color: rgba(255, 255, 255, 0.04);
-    border-left-color: rgba(255, 255, 255, 0.11);
-    box-shadow:
-      0 16px 40px -12px rgba(0, 0, 0, 0.5),
-      0 6px 20px -6px rgba(0, 0, 0, 0.3);
-  }
-}
-
-#other-works {
+#people-worked-with {
   padding-top: 0;
   padding-bottom: 0;
+}
+
+/* Full-width infinite scroll: no edge mask so logos run edge to edge */
+.people-worked-with-marquee-wrap {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+}
+/* No gap on track so duplicate set is flush – seamless loop when translating -50% */
+.people-worked-with-marquee-track {
+  animation: people-worked-with-marquee 45s linear infinite;
+  will-change: transform;
+}
+/* At the seam (after last logo, before duplicate Wizeline), match single gap: cancel one gap with negative margin */
+.marquee-separator {
+  margin-right: -3rem;
+}
+@media (min-width: 768px) {
+  .marquee-separator {
+    margin-right: -4rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .people-worked-with-marquee-track {
+    animation: none;
+    justify-content: center;
+    width: 100%;
+    will-change: auto;
+  }
+  .people-worked-with-marquee-track .marquee-duplicate {
+    display: none;
+  }
+}
+@keyframes people-worked-with-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.people-worked-with-logo {
+  transition: opacity 0.2s ease;
+}
+
+/* Logos with black/dark background: extra padding; slight brightness so dark area is softer (for full white bg use a transparent PNG) */
+.logo-dark-bg-cell {
+  position: relative;
+}
+.logo-dark-bg-img {
+  filter: brightness(1.08) contrast(1.02);
 }
 
 /* Mobile nav: each item slides from off-screen (right) to the left into place. Order: Contact → About → Work → Home */
@@ -242,6 +340,25 @@ html.dark {
 }
 .mobile-nav-option-in {
   animation: mobile-nav-slide-in 0.28s ease-out both;
+}
+
+/* Reverse animation when closing: items slide out to the right. Order: Home → Work → About → Contact */
+@keyframes mobile-nav-slide-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+.mobile-nav-option-out {
+  animation: mobile-nav-slide-out 0.28s ease-in both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-option-in,
+  .mobile-nav-option-out {
+    animation-duration: 0.01s;
+  }
 }
 
 /* Hero employer icons: same under-glow on hover, white fill stays */
@@ -627,4 +744,217 @@ html.dark .shooting-star {
 .shooting-star-3 { animation-duration: 1.8s; }
 .shooting-star-4 { animation-duration: 2.4s; }
 .shooting-star-5 { animation-duration: 2.1s; }
+
+/* All Work carousel: hide scrollbar, keep scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* All Work: viewport is exactly 5 card slots (1160px) so only 5 cards visible; 3 on small (696px) */
+.all-work-viewport {
+  width: 1160px;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (max-width: 767px) {
+  .all-work-viewport {
+    width: 696px;
+    max-width: 100%;
+  }
+}
+
+/* All Work carousel: symmetric padding so the focused card can be centred (90px = half card width); fixed height so scaled card doesn't clip */
+.all-work-carousel {
+  padding-left: max(0px, calc(50% - 90px));
+  padding-right: max(0px, calc(50% - 90px));
+  height: 460px;
+  min-height: 460px;
+  box-sizing: border-box;
+}
+
+/* Arrival onboarding: Step 1 form fade out, Step 2 content fade in */
+.arrival-step1-form {
+  transition: opacity 0.5s ease-out;
+}
+.arrival-step1-fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+.arrival-step1-input:focus::placeholder {
+  color: transparent;
+}
+.arrival-step2-content {
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+}
+.arrival-step2-content-visible {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .arrival-step1,
+  .arrival-step2-content {
+    transition-duration: 0.15s;
+  }
+}
+
+/* Screen-reader only (e.g. live region for carousel position) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Arrival cover: arrow subtle constant float up and down */
+.arrival-cover-arrow-float {
+  animation: arrival-cover-arrow-float 2.4s ease-in-out infinite;
+}
+@keyframes arrival-cover-arrow-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arrival-cover-arrow-float {
+    animation: none;
+  }
+}
+
+/* Arrival cover: rotating action word (Scroll / Swipe / Drag), centered, subtle transition */
+.arrival-cover-action-line {
+  font-size: 1.125rem;
+  letter-spacing: 0.05em;
+}
+.arrival-cover-action-word {
+  display: inline-block;
+  animation: arrival-cover-word-in 0.45s ease-out;
+}
+@keyframes arrival-cover-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arrival-cover-action-word {
+    animation: none;
+  }
+}
+
+/* Arrival cover: glow strip along full bottom edge – intro from below, grows on scroll via inline style */
+.arrival-cover-edge-glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  overflow: visible;
+  pointer-events: none;
+  animation: arrival-cover-edge-glow-intro 1.6s ease-out forwards;
+}
+@keyframes arrival-cover-edge-glow-intro {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.arrival-cover-edge-glow-inner {
+  position: absolute;
+  left: -5%;
+  right: -5%;
+  bottom: 0;
+  height: 36px;
+  z-index: -1;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  --glow-angle: 0deg;
+  background: conic-gradient(
+    from var(--glow-angle),
+    var(--color-accent) 0%,
+    var(--color-accent) 8%,
+    #8b5cf6 20%,
+    #7c3aed 32%,
+    #c084fc 44%,
+    #ec4899 56%,
+    #f472b6 68%,
+    var(--color-accent) 80%,
+    var(--color-accent) 92%,
+    var(--color-accent) 100%
+  );
+  filter: blur(12px);
+  opacity: 0.5;
+  animation: glow-gradient-spin 8s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .arrival-cover-edge-glow {
+    animation: none;
+  }
+  .arrival-cover-edge-glow-inner {
+    animation: none;
+  }
+}
+
+/* Arrival cover: conic glow along full bottom edge – appears on scroll */
+.arrival-cover-conic-glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 80px;
+  overflow: visible;
+  pointer-events: none;
+}
+.arrival-cover-conic-glow-inner {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -30px;
+  height: 140px;
+  z-index: -1;
+  border-radius: 50%;
+  --glow-angle: 0deg;
+  background: conic-gradient(
+    from var(--glow-angle),
+    var(--color-accent) 0%,
+    var(--color-accent) 8%,
+    #8b5cf6 20%,
+    #7c3aed 32%,
+    #c084fc 44%,
+    #ec4899 56%,
+    #f472b6 68%,
+    var(--color-accent) 80%,
+    var(--color-accent) 92%,
+    var(--color-accent) 100%
+  );
+  filter: blur(24px);
+  opacity: 0.5;
+  animation: glow-gradient-spin 8s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .arrival-cover-conic-glow-inner {
+    animation: none;
+  }
+}
 

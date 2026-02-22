@@ -2,7 +2,7 @@ import { type ReactNode } from "react";
 
 interface SectionProps {
   id?: string;
-  title: string;
+  title: ReactNode;
   subtitle?: string;
   children: ReactNode;
   /** Extra class for the section element */

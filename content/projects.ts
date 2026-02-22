@@ -32,7 +32,7 @@ export interface Project {
 export const projects: Project[] = [
   {
     slug: "my3-case-study",
-    title: "My3 Case Study",
+    title: "MyThree",
     category: "UX/UI Lead · Project Management · Information Architecture · Accessibility",
     timeframe: "—",
     readTime: "8 min read",
@@ -81,7 +81,7 @@ Post-launch, we monitored key performance metrics and solicited user feedback to
   },
   {
     slug: "crewpay-pwa",
-    title: "Crew Pay PWA",
+    title: "CrewPay",
     category: "UX/UI · Project Management · Information Architecture",
     timeframe: "—",
     readTime: "6 min read",
@@ -91,7 +91,7 @@ Post-launch, we monitored key performance metrics and solicited user feedback to
   },
   {
     slug: "three-ireland-comp",
-    title: "Three Ireland Components",
+    title: "Three Ireland",
     category: "UX/UI · User Research · Branding",
     timeframe: "—",
     readTime: "5 min read",
@@ -123,7 +123,7 @@ The purpose of this component is to enable Three Customers to check if they are 
   },
   {
     slug: "youngbank",
-    title: "Young Bank - PWA",
+    title: "Young Bank",
     category: "UX/UI · User Research · Branding",
     timeframe: "—",
     readTime: "5 min read",
@@ -148,7 +148,7 @@ Figma Link: https://shorturl.at/hlqF7`,
   },
   {
     slug: "grad-cap",
-    title: "Grad Cap",
+    title: "GradCap",
     category: "UX/UI · User Research · Branding",
     timeframe: "—",
     readTime: "5 min read",

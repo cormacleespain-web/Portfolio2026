@@ -1,8 +1,8 @@
 import { Hero } from "@/components/sections/Hero";
 import { SelectedWorks } from "@/components/sections/SelectedWorks";
 import { Experiences } from "@/components/sections/Experiences";
+import { AllWork } from "@/components/sections/AllWork";
 import { OtherWorks } from "@/components/sections/OtherWorks";
-import { Testimonials } from "@/components/sections/Testimonials";
 import { Contact } from "@/components/sections/Contact";
 import { ShootingStarBackground } from "@/components/ui/ShootingStarBackground";
 
@@ -14,8 +14,8 @@ export default function HomePage() {
         <Hero />
         <SelectedWorks />
         <Experiences />
+        <AllWork />
         <OtherWorks />
-        <Testimonials />
         <Contact />
       </div>
     </>

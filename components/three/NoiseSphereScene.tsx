@@ -57,7 +57,7 @@ export function NoiseSphereScene({
   const pointsUniforms = useMemo(
     () => ({
       u_time: { value: 0 },
-      u_progress: { value: 0 },
+      u_progress: { value: 0.15 },
     }),
     []
   );
@@ -92,8 +92,8 @@ export function NoiseSphereScene({
     });
     gsap.to(pointsUniforms.u_progress, {
       value: 0.4,
-      duration: 5,
-      ease: "power3.inOut",
+      duration: 0.9,
+      ease: "power2.out",
     });
     return () => {
       tl.kill();

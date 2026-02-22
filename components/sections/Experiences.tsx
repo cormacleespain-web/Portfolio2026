@@ -138,14 +138,9 @@ function CompanyCard({
       </div>
       <ul className="mt-2 space-y-1.5" role="list">
         {roles.map((role, i) => (
-          <li
-            key={i}
-            className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0 text-body-sm"
-          >
+          <li key={i} className="flex flex-col gap-0.5 text-body-sm">
             <span className="text-text-muted">{role.title}</span>
-            <span className="shrink-0 text-caption text-text-subtle">
-              {role.timeframe}
-            </span>
+            <span className="text-caption text-text-subtle">{role.timeframe}</span>
           </li>
         ))}
       </ul>
@@ -156,7 +151,7 @@ function CompanyCard({
     return (
       <div className="exp-featured-outer h-full min-h-[120px]">
         <div className="exp-gradient-border h-full min-h-[120px]">
-          <article className="exp-gradient-border-inner flex h-full flex-col p-4 transition hover:bg-surface-hover">
+          <article className="exp-gradient-border-inner flex h-full min-h-[120px] flex-col p-4 transition hover:bg-surface-hover">
             {content}
           </article>
         </div>
@@ -165,7 +160,7 @@ function CompanyCard({
   }
 
   return (
-    <article className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:border-border hover:bg-surface-hover">
+    <article className="flex h-full min-h-[120px] flex-col rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:border-border hover:bg-surface-hover">
       {content}
     </article>
   );
@@ -222,7 +217,7 @@ export function Experiences() {
                       : "md:col-start-3 md:pl-6"
                   } ${i > 0 ? "pl-4 md:pl-6 md:ml-[1.25rem]" : ""}`}
                 >
-                  <div className={`max-w-sm ${i > 0 ? "w-[21rem]" : ""} ${isLeft ? "md:ml-auto" : ""}`}>
+                  <div className={`w-[21rem] max-w-sm ${isLeft ? "md:ml-auto" : ""}`}>
                     <CompanyCard
                       company={group.company}
                       companyUrl={group.companyUrl}

@@ -11,7 +11,11 @@ export function SelectedWorks() {
   const firstThree = projectsList.slice(0, 3);
 
   return (
-    <Section id="selected-works" title="Selected Works">
+    <Section
+      id="selected-works"
+      title="Selected Works"
+      titleClassName="text-2xl md:text-3xl font-bold text-text dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]"
+    >
       {firstThree.length > 0 && (
         <ul
           className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:items-stretch"
@@ -23,6 +27,7 @@ export function SelectedWorks() {
                 <Link
                   href={`/work/${project.slug}`}
                   prefetch={false}
+                  aria-label={`View case study: ${project.title}`}
                   className="group flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-surface transition hover:border-border hover:bg-surface-hover"
                 >
                 {project.image && (
@@ -56,12 +61,9 @@ export function SelectedWorks() {
                       </p>
                     )}
                   </div>
-                  <div className="mt-auto flex shrink-0 items-center justify-between gap-2 pt-2">
+                  <div className="mt-auto flex shrink-0 items-center pt-2">
                     <span className="text-body-sm font-medium text-accent group-hover:text-accent-hover">
                       View case study →
-                    </span>
-                    <span className="text-caption text-text-muted">
-                      {project.readTime}
                     </span>
                   </div>
                 </div>

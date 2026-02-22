@@ -74,6 +74,20 @@ export interface ContactData {
   links: ContactLink[];
 }
 
+/** Brand logo for the "People I've Worked With" marquee */
+export interface Brand {
+  /** Company/brand name (used for alt text and optional link) */
+  name: string;
+  /** Logo image path (e.g. /images/brands/wizeline.svg) or URL */
+  logo: string;
+  /** Optional link (e.g. company site) */
+  url?: string;
+  /** Optional scale so logo fits comfortably (e.g. 0.9 = slightly smaller, 1.15 = slightly larger) */
+  logoScale?: number;
+  /** If true, logo has dark/black background – we treat black as transparent so it shows white */
+  logoDarkBackground?: boolean;
+}
+
 export interface SiteData {
   hero: HeroData;
   experiences: Experience[];
@@ -81,16 +95,18 @@ export interface SiteData {
   education: EducationEntry[];
   testimonials: Testimonial[];
   contact: ContactData;
+  /** Brands shown in the auto-scrolling logo marquee */
+  brands: Brand[];
 }
 
 // ─── Content (from imcormaclee.me; experiences/education/contact partially placeholder) ───────
 
 export const siteData: SiteData = {
   hero: {
-    positioningLine: "Senior Product Designer designing the products behind global decision-making",
+    positioningLine: "Cormac Lee is a product designer evolving the products behind global decision-making",
     name: "Cormac Lee",
     supportingText:
-      "Leading end-to-end product design for Wizeline & DowJones from discovery and IA to delivery, adoption and scale. Trusted by product and engineering leadership to modernize legacy platforms, define AI-ready workflows, and ship multi-product migrations.",
+      "Currently leading end-to-end projects for Wizeline & DowJones from discovery and IA to delivery, adoption and scale. Trusted by product and engineering leadership to modernize legacy platforms, define AI-ready workflows, and ship multi-product migrations.",
     ctaPrimary: { label: "View Case Studies", href: "/#selected-works" },
     ctaSecondary: { label: "See How I lead", href: "/#experience" },
   },
@@ -135,4 +151,19 @@ export const siteData: SiteData = {
       { label: "Dribbble", href: "https://dribbble.com" },
     ],
   },
+
+  brands: [
+    { name: "Wizeline", logo: "/images/brands/wizeline-white.png", url: "https://wizeline.com", logoScale: 0.92 },
+    { name: "Dow Jones", logo: "/images/brands/dow-jones.png", url: "https://www.dowjones.com", logoScale: 0.88 },
+    { name: "Oxford Analytica", logo: "/images/brands/oxford-analytica.png", url: "https://www.oxfordanalytica.com", logoScale: 0.88 },
+    { name: "WSJ", logo: "/images/brands/wsj.png", url: "https://www.wsj.com", logoScale: 1.02 },
+    { name: "Three Ireland", logo: "/images/brands/three-ie.png", url: "https://www.three.ie", logoScale: 0.88 },
+    { name: "Apple", logo: "/images/brands/apple.png", url: "https://www.apple.com", logoScale: 0.95 },
+    { name: "Samsung", logo: "/images/brands/samsung.png", url: "https://www.samsung.com", logoScale: 1.05 },
+    { name: "Huawei", logo: "/images/brands/huawei-white.png", url: "https://www.huawei.com", logoScale: 1.05 },
+    { name: "iUX Effect", logo: "/images/brands/iux-effect.png", url: "https://uxeffect.ie", logoScale: 1.05 },
+    { name: "Rainmaker", logo: "/images/brands/rainmaker.png", logoScale: 1.05 },
+    { name: "Shannon Airport", logo: "/images/brands/shannon-airport.png", url: "https://www.shannonairport.com", logoScale: 0.9 },
+    { name: "University of Limerick", logo: "/images/brands/university-limerick.png", url: "https://www.ul.ie", logoScale: 0.85 },
+  ],
 };

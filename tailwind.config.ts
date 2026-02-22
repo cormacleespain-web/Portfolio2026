@@ -31,6 +31,7 @@ const config: Config = {
       },
       fontFamily: {
         "contact-email": ["var(--font-contact-email)", "Georgia", "serif"],
+        "hero-name": ["var(--font-hero-name)", "cursive"],
       },
       colors: {
         background: "var(--color-background)",
