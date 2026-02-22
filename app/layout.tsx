@@ -6,6 +6,7 @@ import { ScrollToHash } from "@/components/ui/ScrollToHash";
 import { FloatingNav } from "@/components/ui/FloatingNav";
 import { TopRightNav } from "@/components/ui/TopRightNav";
 import { ArrivalCoverGate } from "@/components/ui/ArrivalCoverGate";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -69,6 +70,7 @@ export default function RootLayout({
         <PageShell as="main" className="pb-28 pt-4">
           <div id="main-content" className="page-grid-span-full min-w-0">{children}</div>
         </PageShell>
+        <SpeedInsights />
       </body>
     </html>
   );
