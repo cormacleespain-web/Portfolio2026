@@ -1,5 +1,7 @@
+import Image from "next/image";
 import { siteData } from "@/content/siteData";
 import { Section } from "@/components/ui/Section";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 function getFaviconUrl(companyUrl: string): string | null {
   try {
@@ -126,12 +128,13 @@ function CompanyCard({
             className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-white p-0.5"
             aria-hidden
           >
-            <img
+            <Image
               src={logoUrl}
               alt=""
               width={20}
               height={20}
               className="h-full w-full object-contain"
+              unoptimized
             />
           </span>
         )}
@@ -217,7 +220,11 @@ export function Experiences() {
                       : "md:col-start-3 md:pl-6"
                   } ${i > 0 ? "pl-4 md:pl-6 md:ml-[1.25rem]" : ""}`}
                 >
-                  <div className={`w-[21rem] max-w-sm ${isLeft ? "md:ml-auto" : ""}`}>
+                  <ScrollReveal
+                    className={`w-[21rem] max-w-sm ${isLeft ? "md:ml-auto" : ""}`}
+                    direction={isLeft ? "left" : "right"}
+                    delay={i * 0.08}
+                  >
                     <CompanyCard
                       company={group.company}
                       companyUrl={group.companyUrl}
@@ -225,7 +232,7 @@ export function Experiences() {
                       roles={group.roles}
                       isFeatured={i === 0}
                     />
-                  </div>
+                  </ScrollReveal>
                 </div>
               </li>
             );

@@ -1,10 +1,24 @@
-import Image from "next/image";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProjectBySlug, projects } from "@/content/projects";
-import { CaseStudyTimeline, type TimelinePhase } from "@/components/work/CaseStudyTimeline";
+import {
+  getProjectBySlug,
+  projects,
+  type CaseStudySection as CaseStudySectionData,
+} from "@/content/projects";
+import { CaseStudyHero } from "@/components/work/CaseStudyHero";
+import { CaseStudyProblem } from "@/components/work/CaseStudyProblem";
+import { CaseStudyImpact } from "@/components/work/CaseStudyImpact";
+import {
+  CaseStudyTimeline,
+  type TimelinePhase,
+} from "@/components/work/CaseStudyTimeline";
+import { CaseStudySection } from "@/components/work/CaseStudySection";
+import { CaseStudyReflection } from "@/components/work/CaseStudyReflection";
+import { CaseStudyNextProject } from "@/components/work/CaseStudyNextProject";
+import { CaseStudyPinnedPanels } from "@/components/work/CaseStudyPinnedPanels";
 import { CaseStudyImagePlaceholder } from "@/components/work/CaseStudyImagePlaceholder";
 
-const backHref = "/#selected-works";
+// ── Fallback legacy parser for unmigrated projects ──────────────────────
 
 const DEFAULT_TIMELINE_PHASES: TimelinePhase[] = [
   { label: "Discovery & context" },
@@ -20,7 +34,7 @@ interface ParsedSection {
   body: string;
 }
 
-function parseCaseStudySections(description: string): ParsedSection[] {
+function parseLegacySections(description: string): ParsedSection[] {
   const chunks = description.trim().split(/\n\n+/).filter(Boolean);
   const sections: ParsedSection[] = [];
   for (let i = 0; i < chunks.length; i += 2) {
@@ -37,12 +51,19 @@ function parseCaseStudySections(description: string): ParsedSection[] {
   return sections;
 }
 
-function sectionsToTimelinePhases(sections: ParsedSection[], max = 8): TimelinePhase[] {
-  const fromHeadings = sections
-    .slice(0, max)
-    .map((s) => ({ label: s.heading, short: s.heading.length > 28 ? s.heading.slice(0, 26) + "…" : s.heading }));
+function sectionsToPhases(
+  sections: CaseStudySectionData[] | ParsedSection[],
+  max = 8,
+): TimelinePhase[] {
+  const fromHeadings = sections.slice(0, max).map((s) => ({
+    label: s.heading,
+    short:
+      s.heading.length > 28 ? s.heading.slice(0, 26) + "\u2026" : s.heading,
+  }));
   return fromHeadings.length >= 3 ? fromHeadings : DEFAULT_TIMELINE_PHASES;
 }
+
+// ── Route generation & metadata ─────────────────────────────────────────
 
 interface WorkPageProps {
   params: Promise<{ slug: string }>;
@@ -52,71 +73,127 @@ export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
 }
 
+export async function generateMetadata({
+  params,
+}: WorkPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const project = getProjectBySlug(slug);
+  return { title: project?.title ?? "Case Study" };
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────
+
 export default async function WorkPage({ params }: WorkPageProps) {
   const { slug } = await params;
   const project = getProjectBySlug(slug);
   if (!project) notFound();
 
-  const sections = project.description
-    ? parseCaseStudySections(project.description)
+  const hasStructured = !!project.sections?.length;
+
+  // Resolve the next case study for the CTA
+  const nextProject = project.nextProject
+    ? getProjectBySlug(project.nextProject)
+    : undefined;
+
+  // ── Structured path ───────────────────────────────────────────────────
+  if (hasStructured) {
+    const allSections = project.sections!;
+    const phases = sectionsToPhases(allSections);
+
+    // Split: all sections except the last become pinned cards;
+    // the trailing section (e.g. "Results") renders as a normal on-page section.
+    const hasPinnedLayout = allSections.length >= 2;
+    const cardSections = hasPinnedLayout ? allSections.slice(0, -1) : [];
+    const trailingSections = hasPinnedLayout
+      ? allSections.slice(-1)
+      : allSections;
+
+    return (
+      <article className="py-8">
+        <CaseStudyHero project={project} />
+
+        {project.problem && <CaseStudyProblem problem={project.problem} />}
+
+        {project.impact && project.impact.length > 0 && (
+          <CaseStudyImpact metrics={project.impact} />
+        )}
+
+        {hasPinnedLayout ? (
+          <CaseStudyPinnedPanels phases={phases} sections={cardSections} />
+        ) : (
+          <CaseStudyTimeline phases={phases} />
+        )}
+
+        {/* Trailing sections (e.g. Results) rendered as normal on-page content */}
+        {trailingSections.length > 0 && (
+          <div className="space-y-20">
+            {trailingSections.map((section, i) => (
+              <CaseStudySection
+                key={section.heading}
+                heading={section.heading}
+                body={section.body}
+                image={section.image}
+                imageAlt={section.imageAlt}
+                imageAspect={section.imageAspect}
+                callout={section.callout}
+                index={i}
+              />
+            ))}
+          </div>
+        )}
+
+        {project.reflection && (
+          <CaseStudyReflection reflection={project.reflection} />
+        )}
+
+        {nextProject && <CaseStudyNextProject project={nextProject} />}
+
+        {!nextProject && (
+          <div className="mt-16 pt-8 border-t border-border">
+            <a
+              href="/#selected-works"
+              className="inline-flex items-center gap-2 text-body-sm font-medium text-text-muted transition-colors hover:text-accent"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              All work
+            </a>
+          </div>
+        )}
+      </article>
+    );
+  }
+
+  // ── Legacy fallback for unmigrated projects ───────────────────────────
+  const legacySections = project.description
+    ? parseLegacySections(project.description)
     : [];
-  const timelinePhases = sectionsToTimelinePhases(sections);
-  const hasStructuredContent = sections.length > 0;
+  const legacyPhases = sectionsToPhases(legacySections);
+  const hasLegacy = legacySections.length > 0;
 
   return (
     <article className="py-8">
-      {/* Back navigation */}
-      <a
-        href={backHref}
-        className="mb-8 inline-flex items-center gap-2 text-body-sm text-text-muted hover:text-accent"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
-        Back
-      </a>
+      <CaseStudyHero project={project} />
 
-      {/* Hero image */}
-      {project.image && (
-        <div className="relative mb-10 aspect-video w-full overflow-hidden rounded-xl border border-border bg-surface">
-          <Image
-            src={project.image}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 672px"
-            priority
-          />
-        </div>
-      )}
-
-      {/* Project header — Senior PD case study style */}
-      <header className="mb-10">
-        <p className="text-section font-semibold uppercase tracking-wider text-accent">
-          Case Study
-        </p>
-        <h1 className="mt-2 text-hero font-bold text-text">{project.title}</h1>
-        {project.tagline && (
-          <p className="mt-3 text-body-lg text-text-muted">{project.tagline}</p>
-        )}
-        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-caption text-text-subtle">
-          <span>{project.category}</span>
-          {project.timeframe && project.timeframe !== "—" && (
-            <span>{project.timeframe}</span>
-          )}
-          {project.readTime && <span>{project.readTime}</span>}
-        </div>
-      </header>
-
-      {/* Overview / intro placeholder when we have structured sections */}
-      {hasStructuredContent && sections[0] && (
+      {hasLegacy && legacySections[0] && (
         <>
           <section className="mb-12">
-            <h2 className="text-section font-semibold uppercase tracking-wider text-text-muted mb-4">
+            <h2 className="mb-4 text-section font-semibold uppercase tracking-wider text-text-muted">
               Overview
             </h2>
-            <p className="whitespace-pre-wrap text-body text-text-muted max-w-3xl">
-              {sections[0].body}
+            <p className="max-w-3xl whitespace-pre-wrap text-body text-text-muted">
+              {legacySections[0].body}
             </p>
           </section>
           <CaseStudyImagePlaceholder
@@ -127,24 +204,17 @@ export default async function WorkPage({ params }: WorkPageProps) {
         </>
       )}
 
-      {/* Process timeline */}
-      <section className="mb-14" aria-labelledby="timeline-heading">
-        <h2 id="timeline-heading" className="text-section font-semibold uppercase tracking-wider text-text-muted mb-6">
-          Process
-        </h2>
-        <CaseStudyTimeline phases={timelinePhases} />
-      </section>
+      <CaseStudyTimeline phases={legacyPhases} />
 
-      {/* Case study body: sections with image placeholders */}
       <div className="space-y-16">
-        {hasStructuredContent ? (
-          sections.slice(1).map((section, i) => (
+        {hasLegacy ? (
+          legacySections.slice(1).map((section, i) => (
             <div key={section.heading}>
               <section>
-                <h2 className="text-section font-semibold uppercase tracking-wider text-text-muted mb-4">
+                <h2 className="mb-4 text-section font-semibold uppercase tracking-wider text-text-muted">
                   {section.heading}
                 </h2>
-                <p className="whitespace-pre-wrap text-body text-text-muted max-w-3xl">
+                <p className="max-w-3xl whitespace-pre-wrap text-body text-text-muted">
                   {section.body}
                 </p>
               </section>
@@ -158,39 +228,54 @@ export default async function WorkPage({ params }: WorkPageProps) {
         ) : project.description ? (
           <>
             <section>
-              <h2 className="text-section font-semibold uppercase tracking-wider text-text-muted mb-4">
+              <h2 className="mb-4 text-section font-semibold uppercase tracking-wider text-text-muted">
                 Overview
               </h2>
-              <p className="whitespace-pre-wrap text-body text-text-muted max-w-3xl">
+              <p className="max-w-3xl whitespace-pre-wrap text-body text-text-muted">
                 {project.description}
               </p>
             </section>
-            <CaseStudyImagePlaceholder label="Project detail" aspectRatio="video" />
+            <CaseStudyImagePlaceholder
+              label="Project detail"
+              aspectRatio="video"
+            />
           </>
         ) : (
           <>
-            <p className="text-body-sm text-text-muted max-w-2xl">
-              Case study content. Edit this project in{" "}
+            <p className="max-w-2xl text-body-sm text-text-muted">
+              Case study content coming soon. Edit this project in{" "}
               <code className="rounded bg-surface border border-border px-1.5 py-0.5 text-caption">
                 content/projects.ts
               </code>{" "}
-              or add a dedicated content source (e.g. MDX) for the body.
+              to add the full story.
             </p>
-            <CaseStudyImagePlaceholder label="Add hero or key screenshot" aspectRatio="video" />
+            <CaseStudyImagePlaceholder
+              label="Add hero or key screenshot"
+              aspectRatio="video"
+            />
           </>
         )}
       </div>
 
-      {/* Closing CTA / back */}
       <div className="mt-16 pt-8 border-t border-border">
         <a
-          href={backHref}
-          className="inline-flex items-center gap-2 text-body-sm font-medium text-text-muted hover:text-accent"
+          href="/#selected-works"
+          className="inline-flex items-center gap-2 text-body-sm font-medium text-text-muted transition-colors hover:text-accent"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          Back
+          All work
         </a>
       </div>
     </article>

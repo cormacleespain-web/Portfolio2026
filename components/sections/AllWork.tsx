@@ -3,6 +3,13 @@
 import { useRef, useState, useCallback, useEffect, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from "motion/react";
 import { projects } from "@/content/projects";
 import { Section } from "@/components/ui/Section";
 import type { Project } from "@/content/projects";
@@ -15,12 +22,6 @@ const CARD_SLOT_HALF = CARD_SLOT_WIDTH / 2; // 90 – used for centering math
 const CARD_GAP = 52;
 const SLOT_WIDTH = CARD_SLOT_WIDTH + CARD_GAP; // 232 – larger gap so visual spacing is more even (center card scale makes center gaps look smaller)
 
-const CAROUSEL_BREAKPOINT = 768;
-/** Viewport width = exactly 5 card slots so only 5 cards visible */
-const CAROUSEL_VIEWPORT_WIDTH_LG = 5 * SLOT_WIDTH; // 1160
-/** Small screens: 3 cards visible */
-const CAROUSEL_VIEWPORT_WIDTH_SM = 3 * SLOT_WIDTH; // 696
-/** Max viewport width (cap on ultra-wide so padding doesn’t get huge) */
 /** Center card scale; each step away is slightly smaller */
 const FOCUS_SCALE = 1.2;
 const SCALE_STEP = 0.08;
@@ -56,10 +57,10 @@ function categoryTags(category: string, max = 3): string[] {
     .slice(0, max);
 }
 
-/** Pull factor: how much the icon moves from center toward the mouse (0 = fixed at center, 1 = follows mouse) */
+/** Pull factor: how much the icon drifts from center toward the mouse (0 = fixed, 1 = full follow) */
 const HOVER_ICON_PULL = 0.22;
 
-/** Round view icon anchored to image center; on hover it pulls slightly toward the mouse and snaps back to center on leave */
+/** Round view icon that follows the cursor with spring physics — runs entirely on the compositor */
 function ImageWithHoverIcon({
   src,
   alt,
@@ -70,34 +71,50 @@ function ImageWithHoverIcon({
   sizes: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [hover, setHover] = useState(false);
-  const [point, setPoint] = useState({ x: 50, y: 50 });
+  const [isHovered, setIsHovered] = useState(false);
 
-  const handleMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const el = containerRef.current;
-      if (!el) return;
+  // Raw cursor offset from image center (px) — set imperatively, no React re-render on mousemove
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+
+  // Spring smoothing gives the icon physical weight; interruption-safe
+  const springX = useSpring(rawX, { stiffness: 280, damping: 26 });
+  const springY = useSpring(rawY, { stiffness: 280, damping: 26 });
+
+  // Pull the displacement toward center — icon drifts 22% of the way to cursor
+  const iconX = useTransform(springX, (v) => v * HOVER_ICON_PULL);
+  const iconY = useTransform(springY, (v) => v * HOVER_ICON_PULL);
+
+  const handleMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    rawX.set(e.clientX - rect.left - rect.width / 2);
+    rawY.set(e.clientY - rect.top - rect.height / 2);
+  }, [rawX, rawY]);
+
+  const handleEnter = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    // Seed position from entry point so icon doesn't teleport from center
+    const el = containerRef.current;
+    if (el) {
       const rect = el.getBoundingClientRect();
-      const mx = ((e.clientX - rect.left) / rect.width) * 100;
-      const my = ((e.clientY - rect.top) / rect.height) * 100;
-      // Anchor at center (50,50); offset toward mouse by HOVER_ICON_PULL
-      const x = 50 + (mx - 50) * HOVER_ICON_PULL;
-      const y = 50 + (my - 50) * HOVER_ICON_PULL;
-      setPoint({ x, y });
-    },
-    []
-  );
+      rawX.jump(e.clientX - rect.left - rect.width / 2);
+      rawY.jump(e.clientY - rect.top - rect.height / 2);
+    }
+    setIsHovered(true);
+  }, [rawX, rawY]);
 
   const handleLeave = useCallback(() => {
-    setHover(false);
-    setPoint({ x: 50, y: 50 });
-  }, []);
+    setIsHovered(false);
+    rawX.set(0);
+    rawY.set(0);
+  }, [rawX, rawY]);
 
   return (
     <div
       ref={containerRef}
       className="relative aspect-[3/4] w-full shrink-0 overflow-hidden rounded-2xl border border-border-subtle"
-      onMouseEnter={() => setHover(true)}
+      onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
       onMouseMove={handleMove}
     >
@@ -107,30 +124,48 @@ function ImageWithHoverIcon({
         fill
         className="object-cover transition group-hover:scale-[1.02]"
         sizes={sizes}
-        quality={92}
+        quality={95}
       />
-      {/* Darker overlay on hover so the icon is visible */}
-      <div
-        className={`pointer-events-none absolute inset-0 rounded-2xl transition-colors duration-200 ${hover ? "bg-black/40" : "bg-transparent"}`}
+      {/* Overlay fades in to ensure icon contrast */}
+      <motion.div
+        className="pointer-events-none absolute inset-0 rounded-2xl bg-black"
+        animate={{ opacity: isHovered ? 0.4 : 0 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
         aria-hidden
       />
-      {/* Round icon anchored to center, pulls toward mouse on hover; snaps back on leave */}
-      <span
-        className="pointer-events-none absolute left-0 top-0 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-text shadow-md dark:bg-stone-800 dark:text-white"
+      {/* Icon: centered anchor + spring-driven offset via transforms (compositor-only) */}
+      <motion.span
+        className="pointer-events-none absolute flex h-12 w-12 items-center justify-center rounded-full bg-white text-text shadow-md dark:bg-stone-800 dark:text-white"
         style={{
-          left: `${point.x}%`,
-          top: `${point.y}%`,
-          opacity: hover ? 1 : 0,
-          transition: hover
-            ? "opacity 0.2s ease, left 0.15s ease-out, top 0.15s ease-out"
-            : "opacity 0.15s ease, left 0.2s ease-out, top 0.2s ease-out",
+          left: "50%",
+          top: "50%",
+          translateX: "-50%",
+          translateY: "-50%",
+          x: iconX,
+          y: iconY,
+        }}
+        animate={{
+          opacity: isHovered ? 1 : 0,
+          scale: isHovered ? 1 : 0.65,
+        }}
+        transition={{
+          opacity: { duration: 0.18, ease: "easeOut" },
+          scale: { type: "spring", stiffness: 420, damping: 28 },
         }}
         aria-hidden
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-5 w-5"
+        >
           <path d="M9 6l6 6-6 6" />
         </svg>
-      </span>
+      </motion.span>
     </div>
   );
 }
@@ -156,13 +191,8 @@ const AllWorkCard = memo(function AllWorkCard({
   const grayscale = !isHovered && distanceFromCenter >= GRAYSCALE_DISTANCE;
 
   return (
-    <Link
-      href={`/work/${project.slug}`}
-      prefetch={false}
-      aria-label={`View case study: ${project.title}`}
-      className="all-work-card group flex shrink-0 flex-col transition-all duration-300"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <div
+      className="all-work-card group flex shrink-0 flex-col transition-[transform,opacity] duration-300 ease-out"
       style={{
         scrollSnapAlign: "center",
         scrollSnapStop: "always",
@@ -172,42 +202,54 @@ const AllWorkCard = memo(function AllWorkCard({
         transformOrigin: "center center",
         opacity,
       }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Fixed-height image area: only this region triggers hover (overlay, icon) */}
-      <div
-        className="flex h-[240px] w-full shrink-0 overflow-hidden rounded-2xl transition-[filter] duration-300"
-        style={grayscale ? { filter: "grayscale(0.85)" } : undefined}
+      <Link
+        href={`/work/${project.slug}`}
+        prefetch={false}
+        aria-label={`View case study: ${project.title}`}
+        className="flex flex-col"
       >
-        {project.image && (
-          <ImageWithHoverIcon
-            src={project.image}
-            alt=""
-            sizes={`${CARD_SLOT_WIDTH}px`}
-          />
-        )}
-      </div>
-      <h3 className="mt-3 shrink-0 text-center text-body font-bold text-text">
-        {project.title}
-      </h3>
-      {tags.length > 0 && (
-        <div
-          className="mt-2 flex flex-wrap justify-center gap-2 transition-opacity duration-300 ease-out"
-          style={{
-            opacity: showChips ? 1 : 0,
-            transitionDelay: showChips ? "150ms" : "0ms",
-          }}
+        <motion.div
+          className="flex h-[240px] w-full shrink-0 overflow-hidden rounded-2xl"
+          animate={{ filter: grayscale ? "grayscale(0.85)" : "grayscale(0)" }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center rounded-full border-0 bg-border px-3 py-1 text-[10px] font-medium text-text-muted shadow-sm"
+          {project.image && (
+            <ImageWithHoverIcon
+              src={project.image}
+              alt=""
+              sizes="(max-width: 767px) 280px, 460px"
+            />
+          )}
+        </motion.div>
+        <h3 className="mt-3 shrink-0 text-center text-body font-bold text-text">
+          {project.title}
+        </h3>
+        <AnimatePresence>
+          {showChips && tags.length > 0 && (
+            <motion.div
+              key="chips"
+              className="mt-2 flex flex-wrap justify-center gap-2"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.22, ease: "easeOut", delay: 0.1 }}
             >
-              {tag === "Information Architecture" ? "IA" : tag}
-            </span>
-          ))}
-        </div>
-      )}
-    </Link>
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center rounded-full border-0 bg-border px-3 py-1 text-[10px] font-medium text-text-muted shadow-sm"
+                >
+                  {tag === "Information Architecture" ? "IA" : tag}
+                </span>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Link>
+    </div>
   );
 });
 
@@ -243,26 +285,24 @@ export function AllWork() {
   const goNext = useCallback(() => {
     const el = scrollRef.current;
     if (!el || count === 0) return;
-    const nextLogical = centerLogicalIndex + 1;
-    setCenterLogicalIndex(nextLogical);
+    const nextLogical = lastCenterLogicalRef.current + 1;
     const domIndex = nextLogical + STRIP_LEFT;
     el.scrollTo({
       left: getScrollLeftForCenter(domIndex, el.clientWidth),
       behavior: "smooth",
     });
-  }, [count, centerLogicalIndex]);
+  }, [count]);
 
   const goBack = useCallback(() => {
     const el = scrollRef.current;
     if (!el || count === 0) return;
-    const prevLogical = centerLogicalIndex - 1;
-    setCenterLogicalIndex(prevLogical);
+    const prevLogical = lastCenterLogicalRef.current - 1;
     const domIndex = prevLogical + STRIP_LEFT;
     el.scrollTo({
       left: getScrollLeftForCenter(domIndex, el.clientWidth),
       behavior: "smooth",
     });
-  }, [count, centerLogicalIndex]);
+  }, [count]);
 
   const handleCarouselKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -318,7 +358,7 @@ export function AllWork() {
       title="Case Studies"
       headerClassName="text-center"
       titleClassName="text-2xl md:text-3xl font-bold text-text"
-      className="py-12 md:py-16"
+      className="py-20 md:py-28"
     >
       <div className="relative">
         {/* Edge-to-edge strip: break out of page padding so viewport can sit in full-width area */}
@@ -368,15 +408,18 @@ export function AllWork() {
 
         {/* Navigation: BACK, progress, NEXT (always enabled for endless loop) */}
         <div className="mt-2 flex flex-wrap items-center justify-center gap-4">
-          <button
+          <motion.button
             type="button"
             onClick={goBack}
             aria-controls="all-work-carousel"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-4 py-2 text-caption font-medium text-text transition hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-accent/30"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-4 py-2 text-caption font-medium text-text focus:outline-none focus:ring-2 focus:ring-accent/30"
             aria-label="Previous project"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.93 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
           >
             <span aria-hidden>←</span> BACK
-          </button>
+          </motion.button>
 
           <div
             className="flex h-1.5 min-w-[120px] flex-1 max-w-[200px] overflow-hidden rounded-full bg-border-subtle"
@@ -386,21 +429,25 @@ export function AllWork() {
             aria-valuemax={count}
             aria-label={`Project ${focusIndex + 1} of ${count}`}
           >
-            <div
-              className="h-full rounded-full bg-text-muted transition-all duration-300"
-              style={{ width: `${((focusIndex + 1) / count) * 100}%` }}
+            <motion.div
+              className="h-full rounded-full bg-text-muted"
+              animate={{ width: `${((focusIndex + 1) / count) * 100}%` }}
+              transition={{ type: "spring", stiffness: 260, damping: 32 }}
             />
           </div>
 
-          <button
+          <motion.button
             type="button"
             onClick={goNext}
             aria-controls="all-work-carousel"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-4 py-2 text-caption font-medium text-text transition hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-accent/30"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-4 py-2 text-caption font-medium text-text focus:outline-none focus:ring-2 focus:ring-accent/30"
             aria-label="Next project"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.93 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
           >
             NEXT <span aria-hidden>→</span>
-          </button>
+          </motion.button>
         </div>
       </div>
     </Section>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { motion } from "motion/react";
 import { siteData } from "@/content/siteData";
 
 function isExternalLogo(logo: string) {
@@ -14,7 +14,7 @@ export function OtherWorks() {
 
   return (
     <>
-      <div className="people-worked-with-band relative left-1/2 right-1/2 w-screen -translate-x-1/2 py-24 sm:py-20 md:py-28">
+      <div className="people-worked-with-band relative left-1/2 right-1/2 w-screen -translate-x-1/2 py-36 sm:py-36 md:py-44">
         <div className="people-worked-with-band-bg" aria-hidden />
         <div className="relative z-10">
           <section
@@ -24,9 +24,10 @@ export function OtherWorks() {
           >
             <h2
               id="people-worked-with-heading"
-              className="mb-8 text-center text-sm font-light tracking-wide text-white/80 md:text-base"
+              className="mb-8 text-center text-base font-light tracking-wide text-white md:text-lg"
+              style={{ textShadow: "0 1px 8px rgba(0,0,0,0.55)" }}
             >
-              People I've Worked With
+              People I&apos;ve Worked With
             </h2>
             <div className="people-worked-with-marquee-wrap w-full overflow-hidden">
               <div className="people-worked-with-marquee-track flex w-max items-center">
@@ -65,53 +66,42 @@ function BrandLogo({ brand }: { brand: (typeof siteData.brands)[0] }) {
   const scale = brand.logoScale ?? 1;
   const imageClass = `people-worked-with-logo max-h-full max-w-full object-contain object-center ${darkBg ? "logo-dark-bg-img" : ""}`;
 
-  const content = (
-    <span className={wrapperClass}>
-      <span
-        className="flex h-full w-full items-center justify-center"
-        style={{ transform: `scale(${scale})` }}
-      >
-        {isExternalLogo(logoSrc) ? (
-          <img
-            src={logoSrc}
-            alt=""
-            className={imageClass}
-            width={192}
-            height={112}
-            loading="lazy"
-          />
-        ) : (
-          <Image
-            src={logoSrc}
-            alt=""
-            width={192}
-            height={112}
-            className={imageClass}
-            loading="lazy"
-            unoptimized
-          />
-        )}
-      </span>
-    </span>
-  );
-
-  if (brand.url) {
-    return (
-      <Link
-        href={brand.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`${brand.name} (opens in new tab)`}
-        className={sizeClass}
-        title={brand.name}
-      >
-        {content}
-      </Link>
-    );
-  }
   return (
-    <span className={sizeClass} title={brand.name}>
-      {content}
-    </span>
+    <motion.span
+      className={sizeClass}
+      title={brand.name}
+      style={{ pointerEvents: "none" }}
+      whileHover={{ y: -4, scale: 1.05 }}
+      transition={{ type: "spring", stiffness: 300, damping: 18 }}
+    >
+      <span className={wrapperClass}>
+        <span
+          className="flex h-full w-full items-center justify-center"
+          style={{ transform: `scale(${scale})` }}
+        >
+          {isExternalLogo(logoSrc) ? (
+            // eslint-disable-next-line @next/next/no-img-element -- external brand logos are dynamic and may not be in next/image remotePatterns
+            <img
+              src={logoSrc}
+              alt=""
+              className={imageClass}
+              width={192}
+              height={112}
+              loading="lazy"
+            />
+          ) : (
+            <Image
+              src={logoSrc}
+              alt=""
+              width={192}
+              height={112}
+              className={imageClass}
+              loading="lazy"
+              unoptimized
+            />
+          )}
+        </span>
+      </span>
+    </motion.span>
   );
 }

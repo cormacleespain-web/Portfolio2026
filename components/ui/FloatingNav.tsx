@@ -2,56 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useRef, type ReactElement } from "react";
-
-const STORAGE_KEY = "theme";
-
-function getInitialDark(): boolean {
-  if (typeof window === "undefined") return true;
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "light") return false;
-  return true;
-}
-
-function applyTheme(dark: boolean) {
-  const root = document.documentElement;
-  if (dark) {
-    root.classList.add("dark");
-  } else {
-    root.classList.remove("dark");
-  }
-  localStorage.setItem(STORAGE_KEY, dark ? "dark" : "light");
-}
+import { useCallback, useEffect, useState, useRef, type ReactElement } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 
 function HomeIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden>
       <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-    </svg>
-  );
-}
-
-function LightBulbIcon({ on }: { on: boolean }) {
-  if (on) {
-    return (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden>
-        <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z" />
-      </svg>
-    );
-  }
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5 w-5"
-      aria-hidden
-    >
-      <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1z" />
-      <path d="M12 3C8.14 3 5 6.14 5 10c0 2.38 1.19 4.47 3 5.74V17h8v-1.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z" />
     </svg>
   );
 }
@@ -80,18 +38,10 @@ function EmailIcon() {
   );
 }
 
-function HamburgerIcon() {
+function PlusIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden>
-      <path d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden>
-      <path d="M18 6L6 18M6 6l12 12" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden>
+      <path d="M12 5v14M5 12h14" />
     </svg>
   );
 }
@@ -99,47 +49,29 @@ function CloseIcon() {
 type NavItem = {
   href: string;
   label: string;
-  icon?: boolean;
-  mobileIcon?: (() => ReactElement) | null;
+  icon: () => ReactElement;
 };
 
 const navItems: NavItem[] = [
-  { href: "/#hero", label: "Home", icon: true, mobileIcon: null },
-  { href: "/#selected-works", label: "Work", mobileIcon: BriefcaseIcon },
-  { href: "/#experience", label: "About", mobileIcon: InfoIcon },
-  { href: "/#contact", label: "Contact", mobileIcon: EmailIcon },
+  { href: "/#hero", label: "Home", icon: HomeIcon },
+  { href: "/#selected-works", label: "Work", icon: BriefcaseIcon },
+  { href: "/#experience", label: "About", icon: InfoIcon },
+  { href: "/#contact", label: "Contact", icon: EmailIcon },
 ];
 
 type HoverRect = { left: number; top: number; width: number; height: number } | null;
 
 export function FloatingNav() {
   const pathname = usePathname();
-  const [dark, setDark] = useState(true);
-  const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mobileMenuClosing, setMobileMenuClosing] = useState(false);
   const [hoverGlowRect, setHoverGlowRect] = useState<HoverRect>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const desktopNavRef = useRef<HTMLElement>(null);
-  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const closeMobileMenu = () => {
-    if (mobileMenuClosing) return;
-    setMobileMenuClosing(true);
-  };
-
-  useEffect(() => {
-    if (!mobileMenuClosing) return;
-    const duration = 280 + (navItems.length - 1) * 45;
-    closeTimeoutRef.current = setTimeout(() => {
-      setMobileMenuOpen(false);
-      setMobileMenuClosing(false);
-      closeTimeoutRef.current = null;
-    }, duration);
-    return () => {
-      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-    };
-  }, [mobileMenuClosing]);
+  const closeMobileMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -151,52 +83,68 @@ export function FloatingNav() {
       document.addEventListener("click", handleClickOutside);
       return () => document.removeEventListener("click", handleClickOutside);
     }
-  }, [mobileMenuOpen]);
+  }, [mobileMenuOpen, closeMobileMenu]);
 
-  useEffect(() => {
-    setDark(getInitialDark());
-    setMounted(true);
-  }, []);
+  useGSAP(() => {
+    const footer = document.getElementById("site-footer");
+    if (!footer || !containerRef.current) return;
 
-  useEffect(() => {
-    if (!mounted) return;
-    applyTheme(dark);
-  }, [dark, mounted]);
+    const el = containerRef.current;
+    const mm = gsap.matchMedia();
 
-  const handleThemeToggle = () => {
-    setDark((prev) => {
-      const next = !prev;
-      applyTheme(next);
-      return next;
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      ScrollTrigger.create({
+        trigger: footer,
+        start: "top 90%",
+        onEnter: () => {
+          gsap.to(el, {
+            y: 100,
+            opacity: 0,
+            duration: 0.3,
+            ease: "power2.in",
+          });
+        },
+        onLeaveBack: () => {
+          gsap.fromTo(
+            el,
+            { y: 100, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, ease: "elastic.out(1, 0.5)" },
+          );
+        },
+      });
     });
-  };
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      ScrollTrigger.create({
+        trigger: footer,
+        start: "top 90%",
+        onEnter: () => gsap.set(el, { autoAlpha: 0 }),
+        onLeaveBack: () => gsap.set(el, { autoAlpha: 1 }),
+      });
+    });
+  });
 
   const isHome = pathname === "/";
 
   const linkClassName =
     "rounded-full px-4 py-2 text-body-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-neutral-900 inline-flex items-center justify-center";
-  const iconButtonClassName =
-    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white/90 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-neutral-900";
 
-  const renderNavLink = (item: NavItem, mobile = false) => {
+  const renderDesktopNavLink = (item: NavItem) => {
     const { href, label } = item;
     const isHash = href.startsWith("/#");
     const samePage = isHome && isHash;
-    const content = mobile
-      ? (item.mobileIcon ? <item.mobileIcon /> : item.icon ? <HomeIcon /> : label)
-      : (item.icon ? <HomeIcon /> : label);
-    const className = mobile ? "p-2.5 min-w-[2.25rem] " + linkClassName : linkClassName;
-    const ariaLabel = mobile || item.icon ? label : undefined;
+    const content = href === "/#hero" ? <HomeIcon /> : label;
+    const ariaLabel = href === "/#hero" ? "Home" : undefined;
 
     if (samePage) {
       return (
-        <a key={href} href={href} className={className} aria-label={label}>
+        <a key={href} href={href} className={linkClassName} aria-label={label}>
           {content}
         </a>
       );
     }
     return (
-      <Link key={href} href={href} prefetch={false} className={className} aria-label={ariaLabel}>
+      <Link key={href} href={href} prefetch={false} className={linkClassName} aria-label={ariaLabel}>
         {content}
       </Link>
     );
@@ -204,131 +152,99 @@ export function FloatingNav() {
 
   return (
     <div
+      ref={containerRef}
       className="fixed inset-x-0 bottom-0 z-[100] flex justify-center items-center gap-3 pb-6 pointer-events-none"
     >
-      {/* Mobile / tablet: floating hamburger; when open, theme (icon only) to the left and stacked options above (Home, Work, About, Contact) with glow */}
-      <div ref={mobileMenuRef} className="md:hidden pointer-events-auto fixed right-4 bottom-6 flex flex-col items-end gap-3">
-        {mobileMenuOpen && (
-          <div className="flex flex-col items-end gap-3">
-            {navItems.map((item, index) => {
-              const { href, label } = item;
-              const isHash = href.startsWith("/#");
-              const samePage = isHome && isHash;
-              const Icon = item.mobileIcon ?? (item.icon ? HomeIcon : null) ?? HomeIcon;
-              const content = (
-                <>
-                  {Icon && (
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center">
-                      <Icon />
+      {/* ── Mobile FAB menu ── */}
+      <div ref={mobileMenuRef} className="md:hidden pointer-events-auto fixed right-5 bottom-6 flex flex-col items-end">
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              key="mobile-menu-items"
+              className="mb-3 flex flex-col items-end gap-2.5"
+              initial="closed"
+              animate="open"
+              exit="closed"
+              variants={{
+                open: { transition: { staggerChildren: 0.05, staggerDirection: -1 } },
+                closed: { transition: { staggerChildren: 0.03, staggerDirection: 1 } },
+              }}
+            >
+              {navItems.map((item) => {
+                const { href, label } = item;
+                const isHash = href.startsWith("/#");
+                const samePage = isHome && isHash;
+                const Icon = item.icon;
+
+                const itemContent = (
+                  <div className="flex items-center gap-2.5">
+                    <span className="rounded-full border border-white/5 bg-neutral-950/95 px-3.5 py-2 text-[13px] font-medium text-white/90 shadow-lg backdrop-blur-md">
+                      {label}
                     </span>
-                  )}
-                  <span>{label}</span>
-                </>
-              );
-              const optionClassName =
-                "relative flex h-14 items-center gap-2.5 rounded-full border border-white/10 bg-neutral-900/95 pl-3 pr-4 py-2.5 shadow-lg backdrop-blur-md dark:bg-neutral-950/95 dark:border-white/5 text-body-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-neutral-900";
-              const optionEl =
-                samePage ? (
-                  <a
-                    href={href}
-                    className={optionClassName}
-                    aria-label={label}
-                    onClick={closeMobileMenu}
-                  >
-                    {content}
+                    <span className="floating-nav-glow">
+                      <span className="floating-nav-glow-inner" aria-hidden />
+                      <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/5 bg-neutral-950/95 text-white/90 shadow-lg backdrop-blur-md">
+                        <Icon />
+                      </span>
+                    </span>
+                  </div>
+                );
+
+                const linkEl = samePage ? (
+                  <a href={href} aria-label={label} onClick={closeMobileMenu} className="block">
+                    {itemContent}
                   </a>
                 ) : (
-                  <Link
-                    href={href}
-                    prefetch={false}
-                    className={optionClassName}
-                    aria-label={label}
-                    onClick={closeMobileMenu}
-                  >
-                    {content}
+                  <Link href={href} prefetch={false} aria-label={label} onClick={closeMobileMenu} className="block">
+                    {itemContent}
                   </Link>
                 );
-              const isClosing = mobileMenuClosing;
-              const optionAnimationClass = isClosing ? "mobile-nav-option-out" : "mobile-nav-option-in";
-              const optionAnimationDelay = isClosing ? index * 45 : (navItems.length - 1 - index) * 45;
-              return (
-                <div
-                  key={href}
-                  className={`floating-nav-glow pointer-events-auto ${optionAnimationClass}`}
-                  style={{ animationDelay: `${optionAnimationDelay}ms` }}
-                >
-                  <div className="floating-nav-glow-inner" aria-hidden />
-                  {optionEl}
-                </div>
-              );
-            })}
-          </div>
-        )}
-        <div className="flex items-center gap-3">
-          {mobileMenuOpen && (
-            <div className="floating-nav-glow pointer-events-auto flex-shrink-0">
-              <div className="floating-nav-glow-inner" aria-hidden />
-              <button
-                type="button"
-                role="switch"
-                aria-label={dark ? "Dark mode on. Switch to light mode." : "Light mode on. Switch to dark mode."}
-                aria-checked={dark}
-                onClick={() => handleThemeToggle()}
-                onKeyDown={(e) => {
-                  if (e.key === " " || e.key === "Enter") {
-                    e.preventDefault();
-                    handleThemeToggle();
-                  }
-                }}
-                className="relative flex h-14 w-14 items-center justify-center rounded-full border border-neutral-300/80 bg-white/95 text-neutral-800 shadow-lg backdrop-blur-md transition hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-400/50 focus:ring-offset-2 focus:ring-offset-white dark:border-white/10 dark:bg-neutral-950/95 dark:text-white/90 dark:hover:bg-white/20 dark:hover:text-white dark:focus:ring-white/30 dark:focus:ring-offset-neutral-900"
-              >
-                <LightBulbIcon on={dark} />
-              </button>
-            </div>
+
+                return (
+                  <motion.div
+                    key={href}
+                    className="pointer-events-auto"
+                    variants={{
+                      open: { opacity: 1, scale: 1, y: 0, filter: "blur(0px)" },
+                      closed: { opacity: 0, scale: 0.5, y: 16, filter: "blur(4px)" },
+                    }}
+                    transition={{ type: "spring", stiffness: 350, damping: 26 }}
+                  >
+                    {linkEl}
+                  </motion.div>
+                );
+              })}
+            </motion.div>
           )}
-          <div className="floating-nav-glow pointer-events-auto flex-shrink-0">
-            <div className="floating-nav-glow-inner" aria-hidden />
-            <button
-              type="button"
-              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-              aria-expanded={mobileMenuOpen}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (mobileMenuClosing) {
-                  if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-                  setMobileMenuClosing(false);
-                } else if (mobileMenuOpen) {
-                  closeMobileMenu();
-                } else {
-                  setMobileMenuOpen(true);
-                }
-              }}
-              className="relative flex h-14 w-14 items-center justify-center rounded-full border border-neutral-300/80 bg-white/95 text-neutral-800 shadow-lg backdrop-blur-md transition hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-400/50 focus:ring-offset-2 focus:ring-offset-white dark:border-white/10 dark:bg-neutral-950/95 dark:text-white/90 dark:hover:bg-white/20 dark:hover:text-white dark:focus:ring-white/30 dark:focus:ring-offset-neutral-900"
+        </AnimatePresence>
+
+        {/* FAB trigger */}
+        <div className="floating-nav-glow">
+          <div className="floating-nav-glow-inner" aria-hidden />
+          <motion.button
+            type="button"
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
+            onClick={(e) => {
+              e.stopPropagation();
+              setMobileMenuOpen((prev) => !prev);
+            }}
+            className="relative flex h-14 w-14 items-center justify-center rounded-full border border-white/5 bg-neutral-950/95 text-white/90 shadow-xl backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-neutral-950"
+            whileTap={{ scale: 0.92 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
+            <motion.span
+              className="flex items-center justify-center"
+              animate={{ rotate: mobileMenuOpen ? 45 : 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 22 }}
             >
-              <span className="relative h-5 w-5">
-                <span
-                  className={`absolute inset-0 flex items-center justify-center transition-all duration-200 ease-out ${
-                    mobileMenuOpen ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
-                  }`}
-                  aria-hidden
-                >
-                  <HamburgerIcon />
-                </span>
-                <span
-                  className={`absolute inset-0 flex items-center justify-center transition-all duration-200 ease-out ${
-                    mobileMenuOpen ? "rotate-0 opacity-100 scale-100" : "-rotate-90 opacity-0 scale-75"
-                  }`}
-                  aria-hidden
-                >
-                  <CloseIcon />
-                </span>
-              </span>
-            </button>
-          </div>
+              <PlusIcon />
+            </motion.span>
+          </motion.button>
         </div>
       </div>
 
-      {/* Desktop: nav pill — hover glow is a sibling behind the pill so it never covers the menu */}
+      {/* ── Desktop nav pill ── */}
       <div className="hidden md:flex justify-center items-center gap-3">
         <nav
           ref={desktopNavRef}
@@ -354,7 +270,7 @@ export function FloatingNav() {
                 : { opacity: 0, width: 0, height: 0, left: 0, top: 0 }
             }
           />
-          <div className="relative z-[1] flex h-14 items-center gap-1 rounded-full border border-white/10 bg-neutral-900/95 px-4 py-2.5 shadow-lg backdrop-blur-md dark:bg-neutral-950/95 dark:border-white/5">
+          <div className="relative z-[1] flex h-14 items-center gap-1 rounded-full border border-white/10 bg-neutral-950/95 px-4 py-2.5 shadow-lg backdrop-blur-md">
             {navItems.map((item) => (
               <span
                 key={item.href}
@@ -373,42 +289,9 @@ export function FloatingNav() {
                   });
                 }}
               >
-                {renderNavLink(item, false)}
+                {renderDesktopNavLink(item)}
               </span>
             ))}
-            <span
-              onMouseEnter={(e) => {
-                const el = e.currentTarget;
-                const nav = desktopNavRef.current;
-                if (!nav) return;
-                const nr = nav.getBoundingClientRect();
-                const er = el.getBoundingClientRect();
-                const pad = 14;
-                setHoverGlowRect({
-                  left: er.left - nr.left - pad,
-                  top: er.top - nr.top - pad,
-                  width: er.width + pad * 2,
-                  height: er.height + pad * 2,
-                });
-              }}
-            >
-              <button
-                type="button"
-                role="switch"
-                aria-label={dark ? "Dark mode on. Switch to light mode." : "Light mode on. Switch to dark mode."}
-                aria-checked={dark}
-                onClick={handleThemeToggle}
-                onKeyDown={(e) => {
-                  if (e.key === " " || e.key === "Enter") {
-                    e.preventDefault();
-                    handleThemeToggle();
-                  }
-                }}
-                className={iconButtonClassName}
-              >
-                <LightBulbIcon on={dark} />
-              </button>
-            </span>
           </div>
         </nav>
       </div>

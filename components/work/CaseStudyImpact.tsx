@@ -1,0 +1,84 @@
+"use client";
+
+import { motion, useInView } from "motion/react";
+import { useRef, useEffect, useState } from "react";
+
+interface Metric {
+  label: string;
+  value: string;
+}
+
+interface CaseStudyImpactProps {
+  metrics: Metric[];
+  className?: string;
+}
+
+function AnimatedValue({ value, inView }: { value: string; inView: boolean }) {
+  const numericMatch = value.match(/^([+-]?)(\d+(?:\.\d+)?)(.*)/);
+  const [display, setDisplay] = useState(numericMatch ? "0" : value);
+
+  useEffect(() => {
+    if (!inView || !numericMatch) return;
+
+    const sign = numericMatch[1];
+    const target = parseFloat(numericMatch[2]);
+    const suffix = numericMatch[3];
+    const isDecimal = numericMatch[2].includes(".");
+    const duration = 1200;
+    const start = performance.now();
+
+    function tick(now: number) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = target * eased;
+      setDisplay(
+        `${sign}${isDecimal ? current.toFixed(1) : Math.round(current)}${suffix}`,
+      );
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  }, [inView, numericMatch]);
+
+  return <>{display}</>;
+}
+
+export function CaseStudyImpact({
+  metrics,
+  className = "",
+}: CaseStudyImpactProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+
+  return (
+    <section
+      ref={ref}
+      className={`my-16 rounded-2xl border border-border bg-surface px-6 py-10 sm:px-10 ${className}`.trim()}
+    >
+      <p className="mb-8 text-caption font-semibold uppercase tracking-wider text-text-subtle">
+        Key Results
+      </p>
+      <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+        {metrics.map((m, i) => (
+          <motion.div
+            key={m.label}
+            initial={{ opacity: 0, y: 16 }}
+            animate={inView ? { opacity: 1, y: 0 } : undefined}
+            transition={{
+              duration: 0.45,
+              ease: "easeOut",
+              delay: i * 0.1,
+            }}
+            className="text-center"
+          >
+            <p className="text-[2rem] font-bold leading-none text-accent sm:text-[2.5rem]">
+              <AnimatedValue value={m.value} inView={inView} />
+            </p>
+            <p className="mt-2 text-body-sm text-text-muted">{m.label}</p>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}

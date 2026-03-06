@@ -1,7 +1,11 @@
 "use client";
 
 import { Fragment } from "react";
+import Image from "next/image";
+import { motion } from "motion/react";
 import { siteData } from "@/content/siteData";
+import { HeroNameDrawing, HERO_NAME_ANIM_DURATION } from "@/components/ui/HeroNameDrawing";
+import { useArrivalDismissed } from "@/hooks/useArrivalDismissed";
 
 const EMPLOYER_FAVICONS = [
   { name: "Wizeline", href: "https://wizeline.com", favicon: "https://www.google.com/s2/favicons?domain=wizeline.com&sz=64" },
@@ -10,16 +14,25 @@ const EMPLOYER_FAVICONS = [
 
 const EMPLOYER_PLACEHOLDER = "Wizeline & DowJones";
 
+const HERO_Y_OFFSET = 12;
+const HERO_EASE = [0.16, 1, 0.3, 1] as const;
+const FIRST_LINE_DURATION = 0.4;
+const SECONDARY_DURATION = 0.42;
+const TERTIARY_DURATION = 0.42;
+const AFTER_NAME_DELAY = FIRST_LINE_DURATION + HERO_NAME_ANIM_DURATION * 0.35;
+
 export function Hero() {
-  const { name, supportingText } = siteData.hero;
+  const { supportingText } = siteData.hero;
   const parts = supportingText.split(EMPLOYER_PLACEHOLDER);
   const hasEmployerIcons = parts.length === 2;
   const [before, after] = hasEmployerIcons ? parts : [supportingText, null];
 
+  const dismissed = useArrivalDismissed();
+
   return (
     <section
-      className="relative overflow-hidden min-h-[78vh] flex flex-col justify-end pt-[1.6rem] pb-[4.8rem] md:pt-[2.4rem] md:pb-[7.2rem]"
       id="hero"
+      className="relative overflow-hidden min-h-screen flex flex-col justify-center pt-[1.6rem] pb-24 md:pt-[2.4rem] md:pb-32"
       aria-labelledby="hero-heading"
     >
       <div className="flex flex-col md:flex-row md:items-center md:justify-center md:gap-8">
@@ -30,20 +43,36 @@ export function Hero() {
             className="text-hero font-bold text-text dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]"
           >
             <span className="flex flex-col gap-[0.25em]">
-              <span>I'm <span className="font-hero-name text-[1.2em]">{name}</span>
-              <span className="hero-heading-asterisk ml-4" aria-hidden>*</span></span>
-              <span className="block leading-[1.5]">
+              <motion.span
+                initial={{ opacity: 0, y: HERO_Y_OFFSET }}
+                animate={dismissed ? { opacity: 1, y: 0 } : undefined}
+                transition={{ duration: FIRST_LINE_DURATION, ease: HERO_EASE }}
+              >
+                I&apos;m <HeroNameDrawing dismissed={dismissed} />
+                <span className="hero-heading-asterisk ml-4" aria-hidden>*</span>
+              </motion.span>
+              <motion.span
+                className="block leading-[1.5]"
+                initial={{ opacity: 0, y: HERO_Y_OFFSET }}
+                animate={dismissed ? { opacity: 1, y: 0 } : undefined}
+                transition={{ duration: SECONDARY_DURATION, ease: HERO_EASE, delay: AFTER_NAME_DELAY }}
+              >
                 {" A Senior Designer "}
                 <span className="hero-heading-accent-green">evolving</span>
                 {" the "}
                 <span className="hero-heading-accent-blue">products</span>
                 {" behind global "}
                 <span className="hero-heading-accent-pink">decision-making</span>
-              </span>
+              </motion.span>
             </span>
           </h1>
         </header>
-        <p className="mt-[1.8rem] w-full text-body text-text-muted dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] text-center">
+        <motion.p
+          className="mt-[1.8rem] w-full text-body text-text-muted dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] text-center"
+          initial={{ opacity: 0, y: HERO_Y_OFFSET }}
+          animate={dismissed ? { opacity: 1, y: 0 } : undefined}
+          transition={{ duration: TERTIARY_DURATION, ease: HERO_EASE, delay: AFTER_NAME_DELAY + 0.08 }}
+        >
           {before}
           {hasEmployerIcons && (
             <span className="inline-flex items-center gap-1.5 align-middle ml-1 mr-1">
@@ -63,12 +92,13 @@ export function Hero() {
                     title={name}
                   >
                     <span className="hero-employer-icon-glow-inner" aria-hidden />
-                    <img
+                    <Image
                       src={favicon}
                       alt=""
                       width={24}
                       height={24}
                       className="relative h-full w-full rounded-[4px] object-contain"
+                      unoptimized
                     />
                   </a>
                 </Fragment>
@@ -76,7 +106,7 @@ export function Hero() {
             </span>
           )}
           {after}
-        </p>
+        </motion.p>
         </div>
       </div>
     </section>

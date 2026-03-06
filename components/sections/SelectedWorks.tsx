@@ -1,78 +1,181 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { projects } from "@/content/projects";
-import { Section } from "@/components/ui/Section";
-import { Tag } from "@/components/ui/Tag";
+import { useState, useRef, useEffect } from "react";
+import { motion, useInView } from "motion/react";
+import { projects, type Project } from "@/content/projects";
 
-const visibleProjects = () => projects.filter((p) => !p.hidden);
+interface FeaturedProject extends Project {
+  summary: string;
+}
 
-export function SelectedWorks() {
-  const projectsList = visibleProjects();
-  const firstThree = projectsList.slice(0, 3);
+function getSummary(project: Project): string {
+  if (project.tagline?.trim()) return project.tagline.trim();
+  if (!project.description?.trim()) return "Explore the challenge, process, and outcome.";
+  const firstParagraph = project.description.split(/\n\n+/).find(Boolean)?.trim() ?? "";
+  if (!firstParagraph) return "Explore the challenge, process, and outcome.";
+  return firstParagraph.length > 220
+    ? `${firstParagraph.slice(0, 217)}...`
+    : firstParagraph;
+}
+
+const FEATURED_PROJECTS: FeaturedProject[] = projects
+  .filter((project) => !project.hidden)
+  .slice(0, 3)
+  .map((project) => ({
+    ...project,
+    summary: getSummary(project),
+  }));
+
+const CARD_BG_CLASSES = [
+  "bg-gradient-to-b from-[var(--color-background)] to-[#7c3aed] dark:from-[var(--color-background)] dark:to-[#6d28d9]",
+  "bg-gradient-to-b from-[#7c3aed] to-[#ec4899] dark:from-[#6d28d9] dark:to-[#db2777]",
+  "bg-gradient-to-b from-[#ec4899] to-[var(--color-background)] dark:from-[#db2777] dark:to-[var(--color-background)]",
+] as const;
+
+const springTransition = { type: "spring" as const, stiffness: 300, damping: 28 };
+
+function CaseStudyCard({ project, index, total }: { project: FeaturedProject; index: number; total: number }) {
+  const [hovered, setHovered] = useState(false);
+  const [canHover, setCanHover] = useState(true);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(imageRef, { once: true, margin: "-15%" });
+  const caseStudyHref = `/work/${project.slug}`;
+
+  useEffect(() => {
+    setCanHover(window.matchMedia("(hover: hover)").matches);
+  }, []);
+
+  const fanned = canHover ? hovered : inView;
 
   return (
-    <Section
-      id="selected-works"
-      title="Selected Works"
-      titleClassName="text-2xl md:text-3xl font-bold text-text dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]"
+    <article
+      className={`selected-works-card relative z-10 flex min-h-screen flex-col md:grid md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-6 lg:gap-10 ${CARD_BG_CLASSES[index % CARD_BG_CLASSES.length]}`}
+      style={{ minHeight: "100vh" }}
     >
-      {firstThree.length > 0 && (
-        <ul
-          className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:items-stretch"
-          role="list"
+      <div className="flex items-center justify-center px-6 pt-10 pb-2 md:flex-1 md:min-h-0 md:p-10">
+        <div
+          ref={imageRef}
+          className="relative w-full max-w-xl py-6 md:py-0"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
         >
-          {firstThree.map((project) => (
-            <li key={project.slug} className="flex min-h-0">
-              <div className="selected-work-glow-outer flex min-h-0 flex-1 flex-col">
-                <Link
-                  href={`/work/${project.slug}`}
-                  prefetch={false}
-                  aria-label={`View case study: ${project.title}`}
-                  className="group flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-surface transition hover:border-border hover:bg-surface-hover"
-                >
-                {project.image && (
-                  <div className="relative aspect-video w-full shrink-0 overflow-hidden border-b border-border">
-                    <Image
-                      src={project.image}
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100vw, 33vw"
-                    />
-                  </div>
-                )}
-                <div className="flex min-h-0 flex-1 flex-col gap-2 p-4">
-                  <div className="min-h-0 flex-1 space-y-2">
-                    <span className="text-body-lg font-semibold text-text group-hover:text-accent">
-                      {project.title}
-                    </span>
-                    <div className="flex flex-wrap gap-x-2 gap-y-0 text-caption text-text-muted">
-                      <span>{project.category}</span>
-                      {project.timeframe && project.timeframe !== "—" && (
-                        <>
-                          <span aria-hidden className="text-text-subtle">·</span>
-                          <span>{project.timeframe}</span>
-                        </>
-                      )}
-                    </div>
-                    {project.tagline && (
-                      <p className="text-body-sm text-text-muted line-clamp-2">
-                        {project.tagline}
-                      </p>
-                    )}
-                  </div>
-                  <div className="mt-auto flex shrink-0 items-center pt-2">
-                    <span className="text-body-sm font-medium text-accent group-hover:text-accent-hover">
-                      View case study →
-                    </span>
-                  </div>
+          {/* Backing card – fans left */}
+          <motion.div
+            className="absolute inset-x-0 top-6 bottom-6 md:inset-0 rounded-2xl border border-white/10 bg-white/[0.04]"
+            initial={false}
+            animate={fanned
+              ? { y: 18, x: -30, rotate: -5, scale: 0.96, opacity: 1 }
+              : { y: 0, x: 0, rotate: 0, scale: 1, opacity: 0 }
+            }
+            transition={springTransition}
+            aria-hidden
+          />
+          {/* Backing card – fans right */}
+          <motion.div
+            className="absolute inset-x-0 top-6 bottom-6 md:inset-0 rounded-2xl border border-white/15 bg-white/[0.07]"
+            initial={false}
+            animate={fanned
+              ? { y: 18, x: 30, rotate: 5, scale: 0.96, opacity: 1 }
+              : { y: 0, x: 0, rotate: 0, scale: 1, opacity: 0 }
+            }
+            transition={springTransition}
+            aria-hidden
+          />
+          {/* Main image – lifts forward */}
+          <motion.div
+            className="relative overflow-hidden rounded-2xl border border-white/30 bg-black/20 shadow-2xl backdrop-blur-[1px]"
+            initial={false}
+            animate={fanned ? { y: -8, scale: 1.03 } : { y: 0, scale: 1 }}
+            transition={springTransition}
+          >
+            <Link href={caseStudyHref} prefetch={false} className="block" aria-label={`Open case study for ${project.title}`}>
+              {project.image ? (
+                <div className="relative aspect-[4/3] w-full">
+                  <Image
+                    src={project.image}
+                    alt={`${project.title} case study preview`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 767px) 100vw, 52vw"
+                    priority={index === 0}
+                    quality={95}
+                  />
                 </div>
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Section>
+              ) : (
+                <div className="flex aspect-[4/3] items-center justify-center text-sm font-medium text-white/70">
+                  Project visual coming soon
+                </div>
+              )}
+            </Link>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="flex flex-col justify-center px-6 pb-14 pt-2 md:flex-1 md:max-w-xl md:px-10 md:py-12">
+        <p className="mb-4 flex items-center gap-2 text-sm font-medium tracking-wide text-white/75">
+          <span className="h-px w-8 bg-white/60" aria-hidden />
+          {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+        </p>
+        <h3 className="text-2xl font-bold tracking-tight text-white md:text-3xl lg:text-4xl">
+          {project.title}
+        </h3>
+        <p className="mt-4 text-base leading-relaxed text-white/85 md:text-lg">
+          {project.summary}
+        </p>
+        <p className="mt-4 text-sm text-white/70">{project.category}</p>
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs uppercase tracking-wide text-white/70">
+          {project.timeframe && project.timeframe !== "—" && (
+            <span>{project.timeframe}</span>
+          )}
+          {project.readTime && <span>{project.readTime}</span>}
+        </div>
+        <div className="mt-8">
+          <motion.div
+            className="inline-block"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.96 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
+            <Link
+              href={caseStudyHref}
+              prefetch={false}
+              className="inline-block rounded-lg bg-white px-6 py-3 text-sm font-semibold text-neutral-900 transition hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/60 focus:ring-offset-2 focus:ring-offset-transparent"
+              aria-label={`Open case study for ${project.title}`}
+            >
+              Read case study
+            </Link>
+          </motion.div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export function SelectedWorks() {
+  if (FEATURED_PROJECTS.length === 0) return null;
+
+  return (
+    <section
+      id="selected-works"
+      className="relative left-1/2 -ml-[50vw] -mr-[50vw] w-screen pb-[16vh] pt-12 md:pt-16"
+      style={{ minHeight: `${FEATURED_PROJECTS.length * 100}vh` }}
+      aria-labelledby="selected-works-heading"
+    >
+      <header className="mb-8 md:text-center px-4 sm:px-6 max-w-7xl mx-auto">
+        <h2
+          id="selected-works-heading"
+          className="text-2xl md:text-3xl font-bold text-text dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]"
+        >
+          Selected Case Studies
+        </h2>
+      </header>
+
+      {FEATURED_PROJECTS.map((project, index) => (
+        <CaseStudyCard key={project.slug} project={project} index={index} total={FEATURED_PROJECTS.length} />
+      ))}
+
+    </section>
   );
 }

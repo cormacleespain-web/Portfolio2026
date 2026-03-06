@@ -7,7 +7,6 @@ const STORAGE_KEY = "portfolio-arrival-dismissed";
 const UNLOCK_KEY = "portfolio-site-unlocked";
 const SNAP_THRESHOLD = 0.72;
 const STEP1_FADEOUT_MS = 500;
-const STEP2_FADEIN_MS = 600;
 const SNAP_DURATION_MS = 280;
 const BOUNCE_BACK_DURATION_MS = 420;
 const BOUNCE_BACK_OVERSHOOT = -0.04; // progress briefly goes slightly negative for "bounce down"
@@ -27,7 +26,6 @@ export function ArrivalCover() {
   const [progress, setProgress] = useState(0);
   const [isSnapping, setIsSnapping] = useState(false);
   const [isBouncingBack, setIsBouncingBack] = useState(false);
-  const [isTouch, setIsTouch] = useState(false);
   const [actionWordIndex, setActionWordIndex] = useState(0);
   const coverRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | undefined>(undefined);
@@ -37,7 +35,7 @@ export function ArrivalCover() {
   const isSnappingRef = useRef(false);
   const isBouncingBackRef = useRef(false);
 
-  const showStep1 = unlocked !== true || transitionPhase === "fadeOut";
+  const showStep1 = unlocked === false || transitionPhase === "fadeOut";
   const showStep2 = unlocked === true && !arrivalDismissed;
   const visible = showStep2;
 
@@ -64,16 +62,6 @@ export function ArrivalCover() {
     } catch {
       setUnlocked(false);
     }
-  }, []);
-
-  // Device: touch (Swipe) vs pointer (Scroll)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(pointer: fine)");
-    setIsTouch(!mq.matches);
-    const handler = () => setIsTouch(!window.matchMedia("(pointer: fine)").matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
   }, []);
 
   // Lock scroll and keep page at top while Step 1 or Step 2 is showing

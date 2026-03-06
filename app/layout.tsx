@@ -6,6 +6,7 @@ import { ScrollToHash } from "@/components/ui/ScrollToHash";
 import { FloatingNav } from "@/components/ui/FloatingNav";
 import { TopRightNav } from "@/components/ui/TopRightNav";
 import { ArrivalCoverGate } from "@/components/ui/ArrivalCoverGate";
+import { Footer } from "@/components/sections/Footer";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -21,18 +22,11 @@ const ephesis = Ephesis({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio",
+  title: "Cormac Lee",
   description: "Personal portfolio",
 };
 
-const themeScript = `
-(function() {
-  var stored = localStorage.getItem('theme');
-  var dark = stored !== 'light';
-  if (dark) document.documentElement.classList.add('dark');
-  else document.documentElement.classList.remove('dark');
-})();
-`;
+const darkScript = `document.documentElement.classList.add('dark');try{localStorage.removeItem('theme');}catch(e){}`;
 
 const arrivalScript = `
 (function() {
@@ -50,9 +44,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: darkScript }} />
         <script dangerouslySetInnerHTML={{ __html: arrivalScript }} />
       </head>
       <body className={`min-h-screen bg-background ${playfair.variable} ${ephesis.variable}`}>
@@ -66,9 +60,10 @@ export default function RootLayout({
         <TopRightNav />
         <FloatingNav />
         <ArrivalCoverGate />
-        <PageShell as="main" className="pb-28 pt-4">
+        <PageShell as="main" className="pb-12 pt-4">
           <div id="main-content" className="page-grid-span-full min-w-0">{children}</div>
         </PageShell>
+        <Footer />
       </body>
     </html>
   );

@@ -22,26 +22,15 @@ function applyTheme(dark: boolean) {
 }
 
 export function ThemeToggle() {
-  const [dark, setDark] = useState(true);
-  const [mounted, setMounted] = useState(false);
+  const [dark, setDark] = useState(getInitialDark);
   const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
-    setDark(getInitialDark());
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
     applyTheme(dark);
-  }, [dark, mounted]);
+  }, [dark]);
 
   const handleToggle = () => {
-    setDark((prev) => {
-      const next = !prev;
-      applyTheme(next);
-      return next;
-    });
+    setDark((prev) => !prev);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
