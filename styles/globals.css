@@ -939,3 +939,13 @@ html.dark .starfield .star {
   }
 }
 
+/* Pinned panels: break out to full viewport width */
+.pinned-panels-wrap {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+}
+.pinned-panels-wrap .pinned-panel {
+  transform-origin: center center;
+  overflow: hidden;
+}
+

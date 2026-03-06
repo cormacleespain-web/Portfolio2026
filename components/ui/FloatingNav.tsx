@@ -38,6 +38,14 @@ function EmailIcon() {
   );
 }
 
+function ChatBubbleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden>
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
 function PlusIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden>
@@ -170,6 +178,36 @@ export function FloatingNav() {
                 closed: { transition: { staggerChildren: 0.03, staggerDirection: 1 } },
               }}
             >
+              {/* AI Chat button — distinct orange to stand out */}
+              <motion.div
+                key="ai-chat"
+                className="pointer-events-auto"
+                variants={{
+                  open: { opacity: 1, scale: 1, y: 0, filter: "blur(0px)" },
+                  closed: { opacity: 0, scale: 0.5, y: 16, filter: "blur(4px)" },
+                }}
+                transition={{ type: "spring", stiffness: 350, damping: 26 }}
+              >
+                <button
+                  type="button"
+                  aria-label="AI Chat"
+                  onClick={() => {
+                    closeMobileMenu();
+                    window.dispatchEvent(new Event("toggle-chat"));
+                  }}
+                  className="flex items-center gap-2.5"
+                >
+                  <span className="rounded-full border border-orange-400/20 bg-neutral-950/95 px-3.5 py-2 text-[13px] font-medium text-orange-400 shadow-lg backdrop-blur-md">
+                    AI Chat
+                  </span>
+                  <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-orange-400/20 shadow-lg backdrop-blur-md text-white"
+                    style={{ backgroundColor: "#fb923c" }}
+                  >
+                    <ChatBubbleIcon />
+                  </span>
+                </button>
+              </motion.div>
+
               {navItems.map((item) => {
                 const { href, label } = item;
                 const isHash = href.startsWith("/#");
