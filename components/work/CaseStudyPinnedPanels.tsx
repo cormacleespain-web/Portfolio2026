@@ -153,26 +153,31 @@ export function CaseStudyPinnedPanels({
       );
 
       panelEls.forEach((panel, i) => {
-        ScrollTrigger.create({
-          trigger: panel,
-          start: "top top",
-          pin: true,
-          pinSpacing: false,
-          onEnter: () => updateActiveIndex(i),
-          onEnterBack: () => updateActiveIndex(i),
-        });
+        const isLast = i === panelEls.length - 1;
 
-        if (i < panelEls.length - 1) {
-          gsap.to(panel, {
-            scale: 0.9,
-            opacity: 0,
+        if (isLast) {
+          ScrollTrigger.create({
+            trigger: panel,
+            start: "top top",
+            pin: true,
+            pinSpacing: false,
+            onEnter: () => updateActiveIndex(i),
+            onEnterBack: () => updateActiveIndex(i),
+          });
+        } else {
+          const tl = gsap.timeline({
             scrollTrigger: {
-              trigger: panelEls[i + 1],
-              start: "top bottom",
-              end: "top top",
+              trigger: panel,
+              start: "top top",
+              end: "+=100%",
+              pin: true,
+              pinSpacing: false,
               scrub: true,
+              onEnter: () => updateActiveIndex(i),
+              onEnterBack: () => updateActiveIndex(i),
             },
           });
+          tl.to(panel, { scale: 0.9, opacity: 0, ease: "none" });
         }
       });
     },
