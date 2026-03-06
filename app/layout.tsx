@@ -7,6 +7,7 @@ import { FloatingNav } from "@/components/ui/FloatingNav";
 import { TopRightNav } from "@/components/ui/TopRightNav";
 import { ArrivalCoverGate } from "@/components/ui/ArrivalCoverGate";
 import { Footer } from "@/components/sections/Footer";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -64,6 +65,7 @@ export default function RootLayout({
           <div id="main-content" className="page-grid-span-full min-w-0">{children}</div>
         </PageShell>
         <Footer />
+        <ChatWidget />
       </body>
     </html>
   );
