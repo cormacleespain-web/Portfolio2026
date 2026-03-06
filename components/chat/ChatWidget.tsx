@@ -222,12 +222,13 @@ export function ChatWidget() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about Cormac's work..."
           disabled={streaming}
-          className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-text placeholder:text-text-subtle outline-none focus:border-accent transition-colors disabled:opacity-50"
+          className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-text placeholder:text-text-subtle outline-none transition-colors disabled:opacity-50 focus:border-[#fb923c]"
         />
         <button
           type="submit"
           disabled={!input.trim() || streaming}
-          className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-black transition-colors hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-white transition-colors hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ backgroundColor: "#fb923c" }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="22" y1="2" x2="11" y2="13" />
