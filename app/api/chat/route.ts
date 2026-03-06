@@ -3,7 +3,11 @@ import OpenAI from "openai";
 import { projects } from "@/content/projects";
 import { siteData } from "@/content/siteData";
 
-const openai = new OpenAI({ apiKey: process.env.API_KEY });
+let _openai: OpenAI | null = null;
+function getClient() {
+  if (!_openai) _openai = new OpenAI({ apiKey: process.env.API_KEY });
+  return _openai;
+}
 
 function buildSystemPrompt(): string {
   const hero = siteData.hero;
@@ -90,7 +94,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const stream = await openai.chat.completions.create({
+    const stream = await getClient().chat.completions.create({
       model: "gpt-4o-mini",
       stream: true,
       max_tokens: 1024,
