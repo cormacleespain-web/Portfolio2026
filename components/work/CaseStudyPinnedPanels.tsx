@@ -6,12 +6,6 @@ import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 import type { CaseStudySection } from "@/content/projects";
 import type { TimelinePhase } from "@/components/work/CaseStudyTimeline";
 
-/*
- * Animation ownership:
- * - .pinned-panel  → GSAP: position + transform (ScrollTrigger pin)
- * - No Motion components — this is pure GSAP territory
- */
-
 interface CaseStudyPinnedPanelsProps {
   phases: TimelinePhase[];
   sections: CaseStudySection[];
@@ -31,7 +25,7 @@ function getBg(index: number): string {
 
 function TimelineCard({ phases }: { phases: TimelinePhase[] }) {
   return (
-    <div className="mx-auto w-full max-w-3xl">
+    <div className="mx-auto w-full max-w-3xl px-6 sm:px-10">
       <p className="mb-3 text-caption font-semibold uppercase tracking-wider text-text">
         01
       </p>
@@ -39,15 +33,15 @@ function TimelineCard({ phases }: { phases: TimelinePhase[] }) {
       <ul className="mt-8 flex flex-col gap-4" aria-label="Process phases">
         {phases.map((phase, i) => (
           <li key={phase.label} className="flex items-center gap-4">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-accent text-caption font-semibold text-accent">
-                {i + 1}
-              </span>
-              <span className="text-body-sm font-medium text-text-muted">
-                {phase.short ?? phase.label}
-              </span>
-            </li>
-          ))}
-        </ul>
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-accent text-caption font-semibold text-accent">
+              {i + 1}
+            </span>
+            <span className="text-body-sm font-medium text-text-muted">
+              {phase.short ?? phase.label}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -59,12 +53,11 @@ function SectionCard({
   section: CaseStudySection;
   panelIndex: number;
 }) {
-  const captionColor =
-    panelIndex === 0 ? "text-text" : "text-accent";
+  const captionColor = panelIndex === 0 ? "text-text" : "text-accent";
 
   return (
     <div
-      className="mx-auto w-full max-w-3xl overflow-y-auto max-h-[calc(100vh-6rem)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded"
+      className="mx-auto w-full max-w-3xl px-6 sm:px-10 overflow-y-auto max-h-[calc(100vh-6rem)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded"
       tabIndex={0}
       role="region"
       aria-label={`${section.heading} content`}
@@ -168,6 +161,19 @@ export function CaseStudyPinnedPanels({
           onEnter: () => updateActiveIndex(i),
           onEnterBack: () => updateActiveIndex(i),
         });
+
+        if (i < panelEls.length - 1) {
+          gsap.to(panel, {
+            scale: 0.9,
+            opacity: 0,
+            scrollTrigger: {
+              trigger: panelEls[i + 1],
+              start: "top bottom",
+              end: "top top",
+              scrub: true,
+            },
+          });
+        }
       });
     },
     { scope: containerRef, dependencies: [usePinned, updateActiveIndex] },
@@ -189,14 +195,12 @@ export function CaseStudyPinnedPanels({
           {totalPanels} cards stacked vertically. Scroll to read each section.
         </p>
 
-        {/* Timeline card */}
         <article
           className={`flex min-h-[60vh] flex-col justify-center ${getBg(0)} px-6 py-16 sm:px-10`}
         >
           <TimelineCard phases={phases} />
         </article>
 
-        {/* Section cards */}
         {sections.map((section, i) => (
           <article
             key={section.heading}
@@ -213,7 +217,7 @@ export function CaseStudyPinnedPanels({
   return (
     <section
       ref={containerRef}
-      className={`${className}`.trim()}
+      className={`pinned-panels-wrap ${className}`.trim()}
       role="region"
       aria-labelledby="pinned-cards-heading"
       aria-describedby="pinned-cards-desc"
@@ -244,7 +248,7 @@ export function CaseStudyPinnedPanels({
       {/* Card 1: Design Process timeline */}
       <article
         id="pinned-card-0"
-        className={`pinned-panel relative flex h-screen flex-col justify-center ${getBg(0)} px-6 sm:px-10`}
+        className={`pinned-panel relative flex h-screen flex-col justify-center ${getBg(0)} will-change-transform`}
         style={{ zIndex: 1 }}
         aria-hidden={activeIndex !== 0}
         aria-current={activeIndex === 0 ? "true" : undefined}
@@ -261,7 +265,7 @@ export function CaseStudyPinnedPanels({
           <article
             key={section.heading}
             id={`pinned-card-${panelIdx}`}
-            className={`pinned-panel relative flex h-screen flex-col justify-center ${getBg(panelIdx)} px-6 sm:px-10`}
+            className={`pinned-panel relative flex h-screen flex-col justify-center ${getBg(panelIdx)} will-change-transform`}
             style={{ zIndex: panelIdx + 1 }}
             aria-hidden={!isActive}
             aria-current={isActive ? "true" : undefined}
