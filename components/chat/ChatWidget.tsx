@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { MarkdownText } from "./MarkdownText";
 
 interface Message {
   role: "user" | "assistant";
@@ -30,6 +31,14 @@ export function ChatWidget() {
       inputRef.current.focus();
     }
   }, [open]);
+
+  useEffect(() => {
+    function handleToggle() {
+      setOpen((prev) => !prev);
+    }
+    window.addEventListener("toggle-chat", handleToggle);
+    return () => window.removeEventListener("toggle-chat", handleToggle);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -117,11 +126,16 @@ export function ChatWidget() {
 
   return (
     <>
-      {/* FAB button */}
+      {/* Desktop-only FAB — hidden on mobile since chat lives in the FloatingNav menu */}
       <button
         onClick={() => setOpen(!open)}
         aria-label={open ? "Close chat" : "Chat with AI assistant"}
-        className="fixed bottom-24 right-4 z-[100] flex h-14 w-14 items-center justify-center rounded-full bg-accent text-black shadow-lg transition-transform hover:scale-105 hover:bg-accent-hover active:scale-95 md:bottom-6 md:right-6"
+        className={`fixed bottom-6 right-6 z-[100] hidden h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 md:flex ${
+          open
+            ? "bg-surface-hover text-text hover:bg-border"
+            : "text-white hover:brightness-110"
+        }`}
+        style={!open ? { backgroundColor: "#fb923c" } : undefined}
       >
         {open ? (
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -137,18 +151,33 @@ export function ChatWidget() {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-40 right-4 z-[100] flex w-[360px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-2xl md:bottom-24 md:right-6"
-          style={{ height: "min(500px, calc(100vh - 12rem))" }}
+        <div
+          className="fixed bottom-24 right-4 z-[100] flex w-[360px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-2xl md:bottom-24 md:right-6"
+          style={{ height: "min(500px, calc(100vh - 8rem))" }}
         >
           {/* Header */}
           <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-black text-sm font-bold">
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full text-white text-sm font-bold"
+              style={{ backgroundColor: "#fb923c" }}
+            >
               C
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-text">Cormac&apos;s Portfolio Bot</p>
-              <p className="text-xs text-text-muted">Ask me about projects & experience</p>
+              <p className="text-xs text-text-muted">Ask me about projects &amp; experience</p>
             </div>
+            {/* Close button inside panel header for mobile */}
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close chat"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-text-muted hover:text-text hover:bg-surface-hover transition-colors md:hidden"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
           </div>
 
           {/* Messages */}
@@ -182,19 +211,25 @@ export function ChatWidget() {
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
+                  className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed ${
                     msg.role === "user"
                       ? "bg-accent text-black rounded-br-sm"
                       : "bg-surface-hover text-text rounded-bl-sm"
                   }`}
                 >
-                  {msg.content || (streaming && i === messages.length - 1 ? (
+                  {msg.content ? (
+                    msg.role === "assistant" ? (
+                      <MarkdownText content={msg.content} />
+                    ) : (
+                      msg.content
+                    )
+                  ) : streaming && i === messages.length - 1 ? (
                     <span className="inline-flex gap-1">
                       <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce" style={{ animationDelay: "0ms" }} />
                       <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce" style={{ animationDelay: "150ms" }} />
                       <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce" style={{ animationDelay: "300ms" }} />
                     </span>
-                  ) : null)}
+                  ) : null}
                 </div>
               </div>
             ))}
