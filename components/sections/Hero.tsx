@@ -1,15 +1,16 @@
 "use client";
 
 import { Fragment } from "react";
-import Image from "next/image";
 import { motion } from "motion/react";
 import { siteData } from "@/content/siteData";
 import { HeroNameDrawing, HERO_NAME_ANIM_DURATION } from "@/components/ui/HeroNameDrawing";
 import { useArrivalDismissed } from "@/hooks/useArrivalDismissed";
 
-const EMPLOYER_FAVICONS = [
-  { name: "Wizeline", href: "https://wizeline.com", favicon: "https://www.google.com/s2/favicons?domain=wizeline.com&sz=64" },
-  { name: "Dow Jones", href: "https://dowjones.com", favicon: "https://www.google.com/s2/favicons?domain=dowjones.com&sz=64" },
+// Monochrome text wordmarks (not favicon images) — legible at this size and
+// don't depend on Google's favicon service or an employer's brand color.
+const EMPLOYERS = [
+  { name: "Wizeline", href: "https://wizeline.com", mark: "W" },
+  { name: "Dow Jones", href: "https://dowjones.com", mark: "DJ" },
 ] as const;
 
 const EMPLOYER_PLACEHOLDER = "Wizeline & DowJones";
@@ -74,7 +75,7 @@ export function Hero() {
           {before}
           {hasEmployerIcons && (
             <span className="inline-flex items-center gap-1.5 align-middle ml-1 mr-1">
-              {EMPLOYER_FAVICONS.map(({ name, href, favicon }, index) => (
+              {EMPLOYERS.map(({ name, href, mark }, index) => (
                 <Fragment key={name}>
                   {index > 0 && (
                     <span className="mx-0.5 text-text-muted/80" aria-hidden>
@@ -85,19 +86,12 @@ export function Hero() {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hero-employer-icon-glow inline-flex h-7 w-7 shrink-0 rounded-lg bg-white p-0.5 focus-visible:outline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="hero-employer-icon-glow relative inline-flex h-7 min-w-7 shrink-0 items-center justify-center rounded-md border border-border bg-surface-hover px-1.5 text-[11px] font-semibold tracking-wide text-text-muted transition-colors hover:text-accent-2 focus-visible:outline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     aria-label={`Visit ${name}`}
                     title={name}
                   >
                     <span className="hero-employer-icon-glow-inner" aria-hidden />
-                    <Image
-                      src={favicon}
-                      alt=""
-                      width={24}
-                      height={24}
-                      className="relative h-full w-full rounded-[4px] object-contain"
-                      unoptimized
-                    />
+                    <span className="relative" aria-hidden>{mark}</span>
                   </a>
                 </Fragment>
               ))}
