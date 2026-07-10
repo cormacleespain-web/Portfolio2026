@@ -12,9 +12,19 @@ This is a **Next.js 16** (Turbopack) portfolio site — a single application wit
 
 ### Lint / Build / Test
 
-- `npm run lint` — ESLint (flat config in `eslint.config.mjs`). There are pre-existing lint errors (e.g. `@next/next/no-html-link-for-pages`, `react-hooks/set-state-in-effect`); these are in the repo, not introduced by agents.
-- `npm run build` — production build. No automated test suite exists in this repo.
+- `npm run lint` — ESLint (flat config in `eslint.config.mjs`). Should be 0 errors / 0 warnings — if you see any, fix them as part of your change rather than leaving them.
+- `npm run build` — production build.
+- `npm run test:e2e` — Playwright (`e2e/`): arrival gate keyboard path, chat widget, case study pages, axe-core a11y scans (home + every visible case study), `/api/chat` validation. Should be green; the only intentionally-non-passing state is a `test.fixme` for step-2 gate dismissal via incremental scroll-key progress (only the "dismiss immediately" keyboard/button path is covered).
 - TypeScript checking is done as part of the build step.
+
+### Motion lanes
+
+Two animation libraries are both in active use — assign work by lane, don't blur them:
+
+- **GSAP + ScrollTrigger** (`lib/gsap.ts`) — scroll-linked choreography only: pinned/scrubbed sections (`CaseStudyPinnedPanels`), hide-on-scroll chrome (`FloatingNav`), the footer's elastic wave.
+- **`motion`** (Framer's successor) — component enter/exit and gesture-driven animation: reveals, springs, drag sheets, hover/tap feedback.
+- **No new CSS `@keyframes` for anything stateful.** CSS keyframes are for ambient/decorative loops only (glows, starfield, marquee) — always paired with a `prefers-reduced-motion` branch that sets `animation: none`, not just a shorter duration.
+- Every animation — in any of the three lanes — must have a `prefers-reduced-motion` branch. The `CaseStudyPinnedPanels` matchMedia-driven static-stack fallback is the reference pattern to copy.
 
 ### Gotchas
 
