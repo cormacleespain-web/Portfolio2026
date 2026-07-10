@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { RocketScene } from "@/components/three/RocketScene";
+import dynamic from "next/dynamic";
+
+// Dynamically imported (no SSR) so three.js only loads when the gate mounts,
+// not in every route's first-load JS.
+const RocketScene = dynamic(
+  () => import("@/components/three/RocketScene").then((m) => m.RocketScene),
+  { ssr: false },
+);
 
 const STORAGE_KEY = "portfolio-arrival-dismissed";
 const UNLOCK_KEY = "portfolio-site-unlocked";
@@ -100,9 +107,13 @@ export function ArrivalCover() {
   // Keyboard equivalent for step 2 (wheel/touch/drag-only otherwise): Enter,
   // Space, or ArrowDown enters the site immediately. Same code path a
   // reduced-motion user gets via the visible "Enter site" button.
+  // Listener is attached once on mount and checks for the button's presence
+  // directly in the DOM (rather than a ref mirroring `visible` via a separate
+  // effect) — the button only exists in the same render/commit as step 2, so
+  // there's no effect-timing gap between it appearing and this check seeing it.
   useEffect(() => {
-    if (visible !== true) return;
     const onKeyDown = (e: KeyboardEvent) => {
+      if (!document.querySelector(".arrival-cover-enter-button")) return;
       if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
         e.preventDefault();
         dismiss();
@@ -110,7 +121,7 @@ export function ArrivalCover() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [visible, dismiss]);
+  }, [dismiss]);
 
   const handleUnlockSubmit = useCallback(
     async (e: React.FormEvent) => {

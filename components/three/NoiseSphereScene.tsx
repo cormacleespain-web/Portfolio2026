@@ -47,12 +47,27 @@ export function NoiseSphereScene({
   positionX = 0,
 }: NoiseSphereSceneProps = {}) {
   const pointsRef = useRef<THREE.Points>(null);
-  const prefersReducedMotionRef = useRef(false);
+  // True while frozen: either prefers-reduced-motion (permanent) or the tab
+  // is hidden (temporary — resumes on visibilitychange).
+  const pausedRef = useRef(false);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+
   useEffect(() => {
-    prefersReducedMotionRef.current = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const prefersReducedMotion = () =>
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const update = () => {
+      const hidden = document.visibilityState === "hidden";
+      pausedRef.current = hidden || prefersReducedMotion();
+      if (tlRef.current) {
+        if (hidden) tlRef.current.pause();
+        else if (!prefersReducedMotion()) tlRef.current.resume();
+      }
+    };
+    update();
+    document.addEventListener("visibilitychange", update);
+    return () => document.removeEventListener("visibilitychange", update);
   }, []);
+
   const sphereUniforms = useMemo(
     () => ({
       u_time: { value: 0 },
@@ -76,8 +91,8 @@ export function NoiseSphereScene({
   );
 
   useFrame((state) => {
-    // Static frame under reduced motion: skip time/rotation updates entirely.
-    if (prefersReducedMotionRef.current) return;
+    // Static frame under reduced motion, or paused while the tab is hidden.
+    if (pausedRef.current) return;
     const t = state.clock.getElapsedTime();
     sphereUniforms.u_time.value = t;
     pointsUniforms.u_time.value = t;
@@ -95,6 +110,7 @@ export function NoiseSphereScene({
       return;
     }
     const tl = gsap.timeline({ repeat: -1, yoyo: true });
+    tlRef.current = tl;
     tl.to(sphereUniforms.u_progress, {
       value: 5,
       duration: 5,
@@ -111,6 +127,7 @@ export function NoiseSphereScene({
     });
     return () => {
       tl.kill();
+      tlRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, []);

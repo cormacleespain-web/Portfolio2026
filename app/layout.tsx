@@ -4,7 +4,6 @@ import "@/styles/globals.css";
 import { PageShell } from "@/components/ui/PageShell";
 import { ScrollToHash } from "@/components/ui/ScrollToHash";
 import { FloatingNav } from "@/components/ui/FloatingNav";
-import { TopRightNav } from "@/components/ui/TopRightNav";
 import { ArrivalCoverGate } from "@/components/ui/ArrivalCoverGate";
 import { Footer } from "@/components/sections/Footer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
@@ -64,7 +63,6 @@ export default function RootLayout({
           Skip to main content
         </a>
         <ScrollToHash />
-        <TopRightNav />
         <FloatingNav />
         <ArrivalCoverGate />
         <PageShell as="main" className="pb-12 pt-4">

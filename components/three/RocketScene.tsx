@@ -7,7 +7,7 @@ import { NoiseSphereScene } from "./NoiseSphereScene";
 interface RocketSceneProps {
   /** Optional class for the wrapper div (e.g. fixed inset-0 for full screen) */
   className?: string;
-  /** Show orbit controls for the playground; hide for hero so it doesn't capture pointer */
+  /** Show orbit controls; hide for hero so it doesn't capture pointer */
   controls?: boolean;
   /** Use "none" when behind Hero so hero content stays clickable */
   pointerEvents?: "auto" | "none";
@@ -23,10 +23,7 @@ interface RocketSceneProps {
   scenePositionX?: number;
 }
 
-/**
- * Three.js scene (noise sphere + particles + background). Use on the playground to build and test,
- * then reuse behind the Hero with controls={false} and pointerEvents="none".
- */
+/** Three.js scene (noise sphere + particles + background), used behind the arrival gate. */
 export function RocketScene({
   className = "",
   controls = true,
