@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 import type { CaseStudySection } from "@/content/projects";
@@ -107,10 +107,10 @@ export function CaseStudyPinnedPanels({
 
   const totalPanels = 1 + sections.length;
 
-  const panelLabels = [
-    "Design Process",
-    ...sections.map((s) => s.heading),
-  ];
+  const panelLabels = useMemo(
+    () => ["Design Process", ...sections.map((s) => s.heading)],
+    [sections],
+  );
 
   useEffect(() => {
     const mqMotion = window.matchMedia("(prefers-reduced-motion: reduce)");

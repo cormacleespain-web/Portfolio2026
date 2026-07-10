@@ -1,6 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
+
+function subscribe(callback: () => void) {
+  const html = document.documentElement;
+  const observer = new MutationObserver(callback);
+  observer.observe(html, { attributes: true, attributeFilter: ["class"] });
+  return () => observer.disconnect();
+}
+
+function getSnapshot(): boolean {
+  return document.documentElement.classList.contains("arrival-dismissed");
+}
 
 /**
  * Returns `true` once the arrival cover has been dismissed
@@ -8,25 +19,5 @@ import { useState, useEffect } from "react";
  * If the class is already there on mount (returning visitor), returns `true` immediately.
  */
 export function useArrivalDismissed(): boolean {
-  const [dismissed, setDismissed] = useState(false);
-
-  useEffect(() => {
-    const html = document.documentElement;
-    if (html.classList.contains("arrival-dismissed")) {
-      setDismissed(true);
-      return;
-    }
-
-    const observer = new MutationObserver(() => {
-      if (html.classList.contains("arrival-dismissed")) {
-        setDismissed(true);
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(html, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
-
-  return dismissed;
+  return useSyncExternalStore(subscribe, getSnapshot, () => false);
 }

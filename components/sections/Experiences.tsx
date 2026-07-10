@@ -68,10 +68,10 @@ function getEarliestLatestTimeframe(roles: { timeframe: string }[]): string {
 /** Group experiences by company (and timelineGroup when set); order by first occurrence in list. */
 function groupByCompany(
   experiences: typeof siteData.experiences
-): { company: string; companyUrl?: string; companyLogo?: string; roles: typeof siteData.experiences }[] {
+): { key: string; company: string; companyUrl?: string; companyLogo?: string; roles: typeof siteData.experiences }[] {
   const map = new Map<
     string,
-    { company: string; companyUrl?: string; companyLogo?: string; roles: typeof siteData.experiences }
+    { key: string; company: string; companyUrl?: string; companyLogo?: string; roles: typeof siteData.experiences }
   >();
   const order: string[] = [];
 
@@ -80,6 +80,7 @@ function groupByCompany(
     if (!map.has(groupKey)) {
       order.push(groupKey);
       map.set(groupKey, {
+        key: groupKey,
         company: exp.company,
         companyUrl: exp.companyUrl,
         companyLogo: exp.companyLogo,
@@ -194,7 +195,7 @@ export function Experiences() {
 
             return (
               <li
-                key={group.company}
+                key={group.key}
                 className="relative grid grid-cols-[2.25rem_minmax(0,1fr)] grid-rows-[auto_auto] gap-x-4 gap-y-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-x-6 md:gap-y-4"
               >
                 {/* Row 1: DateTime pill – timeline line goes through the left of the pill */}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   getProjectBySlug,
@@ -150,7 +151,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
 
         {!nextProject && (
           <div className="mt-16 pt-8 border-t border-border">
-            <a
+            <Link
               href="/#selected-works"
               className="inline-flex items-center gap-2 text-body-sm font-medium text-text-muted transition-colors hover:text-accent"
             >
@@ -168,7 +169,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
                 <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
               All work
-            </a>
+            </Link>
           </div>
         )}
       </article>
@@ -258,7 +259,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
       </div>
 
       <div className="mt-16 pt-8 border-t border-border">
-        <a
+        <Link
           href="/#selected-works"
           className="inline-flex items-center gap-2 text-body-sm font-medium text-text-muted transition-colors hover:text-accent"
         >
@@ -276,7 +277,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
           All work
-        </a>
+        </Link>
       </div>
     </article>
   );

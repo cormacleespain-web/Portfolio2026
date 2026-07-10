@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useSyncExternalStore } from "react";
 import { motion, useInView } from "motion/react";
 import { projects, type Project } from "@/content/projects";
 
@@ -36,16 +36,28 @@ const CARD_BG_CLASSES = [
 
 const springTransition = { type: "spring" as const, stiffness: 300, damping: 28 };
 
+const HOVER_QUERY = "(hover: hover)";
+
+function subscribeCanHover(callback: () => void) {
+  const mq = window.matchMedia(HOVER_QUERY);
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+
+function getCanHoverSnapshot() {
+  return window.matchMedia(HOVER_QUERY).matches;
+}
+
+function useCanHover() {
+  return useSyncExternalStore(subscribeCanHover, getCanHoverSnapshot, () => true);
+}
+
 function CaseStudyCard({ project, index, total }: { project: FeaturedProject; index: number; total: number }) {
   const [hovered, setHovered] = useState(false);
-  const [canHover, setCanHover] = useState(true);
+  const canHover = useCanHover();
   const imageRef = useRef<HTMLDivElement>(null);
   const inView = useInView(imageRef, { once: true, margin: "-15%" });
   const caseStudyHref = `/work/${project.slug}`;
-
-  useEffect(() => {
-    setCanHover(window.matchMedia("(hover: hover)").matches);
-  }, []);
 
   const fanned = canHover ? hovered : inView;
 

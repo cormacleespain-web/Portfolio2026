@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import type { Project } from "@/content/projects";
@@ -30,7 +31,7 @@ export function CaseStudyHero({ project }: CaseStudyHeroProps) {
   return (
     <header ref={heroRef} className="mb-12">
       {/* Back navigation */}
-      <a
+      <Link
         href="/#selected-works"
         className="mb-8 inline-flex items-center gap-2 text-body-sm text-text-muted transition-colors hover:text-accent"
       >
@@ -48,7 +49,7 @@ export function CaseStudyHero({ project }: CaseStudyHeroProps) {
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
         Back
-      </a>
+      </Link>
 
       {/* Parallax hero image */}
       {project.image && (
