@@ -29,9 +29,9 @@ const FEATURED_PROJECTS: FeaturedProject[] = projects
   }));
 
 const CARD_BG_CLASSES = [
-  "bg-gradient-to-b from-[var(--color-background)] to-[#7c3aed] dark:from-[var(--color-background)] dark:to-[#6d28d9]",
-  "bg-gradient-to-b from-[#7c3aed] to-[#ec4899] dark:from-[#6d28d9] dark:to-[#db2777]",
-  "bg-gradient-to-b from-[#ec4899] to-[var(--color-background)] dark:from-[#db2777] dark:to-[var(--color-background)]",
+  "bg-gradient-to-b from-background to-accent-2",
+  "bg-gradient-to-b from-accent-2 to-accent",
+  "bg-gradient-to-b from-accent to-background",
 ] as const;
 
 const springTransition = { type: "spring" as const, stiffness: 300, damping: 28 };

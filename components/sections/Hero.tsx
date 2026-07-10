@@ -40,7 +40,7 @@ export function Hero() {
         <header className="w-full">
           <h1
             id="hero-heading"
-            className="text-hero font-bold text-text dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]"
+            className="text-hero font-display font-bold text-text dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]"
           >
             <span className="flex flex-col gap-[0.25em]">
               <motion.span
@@ -49,7 +49,7 @@ export function Hero() {
                 transition={{ duration: FIRST_LINE_DURATION, ease: HERO_EASE }}
               >
                 I&apos;m <HeroNameDrawing dismissed={dismissed} />
-                <span className="hero-heading-asterisk ml-4" aria-hidden>*</span>
+                <span className="hero-heading-accent-2 ml-4" aria-hidden>*</span>
               </motion.span>
               <motion.span
                 className="block leading-[1.5]"
@@ -57,12 +57,10 @@ export function Hero() {
                 animate={dismissed ? { opacity: 1, y: 0 } : undefined}
                 transition={{ duration: SECONDARY_DURATION, ease: HERO_EASE, delay: AFTER_NAME_DELAY }}
               >
-                {" A Senior Designer "}
-                <span className="hero-heading-accent-green">evolving</span>
-                {" the "}
-                <span className="hero-heading-accent-blue">products</span>
+                {" A Senior Designer evolving the "}
+                <span className="hero-heading-accent">products</span>
                 {" behind global "}
-                <span className="hero-heading-accent-pink">decision-making</span>
+                <span className="hero-heading-accent-2">decision-making</span>
               </motion.span>
             </span>
           </h1>

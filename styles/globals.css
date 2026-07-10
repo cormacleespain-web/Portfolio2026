@@ -12,45 +12,15 @@
   --color-text-muted: #a8a29e;
   --color-text-subtle: #78716c;
 
+  /* Two-accent system: teal (primary) + signal-orange (warm counterpoint, from the arrival sphere) */
   --color-accent: #2dd4bf;
   --color-accent-hover: #5eead4;
   --color-accent-muted: #134e4a;
 
-  --color-border: #292524;
-  --color-border-subtle: #1c1917;
-}
+  --color-accent-2: #f97316;
+  --color-accent-2-hover: #fb923c;
 
-/* Light theme (opt-in via html.light, unused now that dark is permanent) */
-html.light {
-  --color-background: #fafaf9;
-  --color-surface: #ffffff;
-  --color-surface-hover: #f5f5f4;
-
-  --color-text: #1c1917;
-  --color-text-muted: #57534e;
-  --color-text-subtle: #78716c;
-
-  --color-accent: #0d9488;
-  --color-accent-hover: #0f766e;
-  --color-accent-muted: #ccfbf1;
-
-  --color-border: #e7e5e4;
-  --color-border-subtle: #f5f5f4;
-}
-
-/* Dark theme alias kept for any residual html.dark references */
-html.dark {
-  --color-background: #0c0a09;
-  --color-surface: #1c1917;
-  --color-surface-hover: #292524;
-
-  --color-text: #fafaf9;
-  --color-text-muted: #a8a29e;
-  --color-text-subtle: #78716c;
-
-  --color-accent: #2dd4bf;
-  --color-accent-hover: #5eead4;
-  --color-accent-muted: #134e4a;
+  --color-ring: var(--color-accent);
 
   --color-border: #292524;
   --color-border-subtle: #1c1917;
@@ -91,30 +61,12 @@ html.dark {
   }
 }
 
-/* Hero heading: orange asterisk + colored accent words (no italics) */
-.hero-heading-asterisk {
-  color: #f97316; /* orange-500 */
+/* Hero heading: two-accent system only (no italics) */
+.hero-heading-accent {
+  color: var(--color-accent);
 }
-.dark .hero-heading-asterisk {
-  color: #fb923c; /* orange-400 */
-}
-.hero-heading-accent-green {
-  color: #4ade80; /* green-400 */
-}
-.dark .hero-heading-accent-green {
-  color: #86efac; /* green-300 */
-}
-.hero-heading-accent-blue {
-  color: #38bdf8; /* sky-300 */
-}
-.dark .hero-heading-accent-blue {
-  color: #7dd3fc; /* sky-200 */
-}
-.hero-heading-accent-pink {
-  color: #e879f9; /* fuchsia-400 */
-}
-.dark .hero-heading-accent-pink {
-  color: #f0abfc; /* fuchsia-300 */
+.hero-heading-accent-2 {
+  color: var(--color-accent-2);
 }
 
 /* When cover is active: hide main content and prevent any scroll so content stays at top */
@@ -183,8 +135,7 @@ html.arrival-dismissed #main-content {
   background: conic-gradient(
     from var(--glow-angle),
     var(--color-accent),
-    #7c3aed,
-    #ec4899,
+    var(--color-accent-2),
     var(--color-accent)
   );
   filter: blur(10px);
@@ -202,8 +153,7 @@ html.arrival-dismissed #main-content {
   background: conic-gradient(
     from var(--glow-angle),
     var(--color-accent),
-    #7c3aed,
-    #ec4899,
+    var(--color-accent-2),
     var(--color-accent)
   );
   filter: blur(12px);
@@ -242,10 +192,8 @@ html.arrival-dismissed #main-content {
   background: linear-gradient(
     90deg,
     var(--color-accent) 0%,
-    #7c3aed 25%,
-    #ec4899 50%,
-    var(--color-accent) 75%,
-    #7c3aed 100%
+    var(--color-accent-2) 50%,
+    var(--color-accent) 100%
   );
   background-size: 200% 100%;
   background-position: 0% 50%;
@@ -354,8 +302,7 @@ html.arrival-dismissed #main-content {
   background: conic-gradient(
     from var(--glow-angle),
     var(--color-accent),
-    #7c3aed,
-    #ec4899,
+    var(--color-accent-2),
     var(--color-accent)
   );
   filter: blur(10px);
@@ -383,8 +330,7 @@ html.arrival-dismissed #main-content {
   background: linear-gradient(
     90deg,
     var(--color-accent) 0%,
-    #7c3aed 33%,
-    #ec4899 66%,
+    var(--color-accent-2) 50%,
     var(--color-accent) 100%
   );
   background-size: 200% 100%;
@@ -415,8 +361,7 @@ html.arrival-dismissed #main-content {
   background: linear-gradient(
     90deg,
     var(--color-accent) 0%,
-    #7c3aed 33%,
-    #ec4899 66%,
+    var(--color-accent-2) 50%,
     var(--color-accent) 100%
   );
   background-size: 200% 100%;
@@ -508,8 +453,7 @@ html.arrival-dismissed #main-content {
   background: conic-gradient(
     from var(--glow-angle),
     var(--color-accent),
-    #7c3aed,
-    #ec4899,
+    var(--color-accent-2),
     var(--color-accent)
   );
   filter: blur(6px);
@@ -538,8 +482,7 @@ html.arrival-dismissed #main-content {
   background: conic-gradient(
     from var(--glow-angle),
     var(--color-accent),
-    #7c3aed,
-    #ec4899,
+    var(--color-accent-2),
     var(--color-accent)
   );
   filter: blur(6px);
@@ -550,50 +493,6 @@ html.arrival-dismissed #main-content {
 
 .selected-work-glow-outer:hover::after {
   opacity: 0.5;
-}
-
-/* Theme toggle: top-corner glow on light-bulb hover — small, round */
-.theme-toggle-glow {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 140px;
-  height: 140px;
-  transform: translate(40%, -40%);
-  border-radius: 50%;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
-.theme-toggle-glow.theme-toggle-glow-visible {
-  opacity: 1;
-}
-/* Light mode: dark subtle blackish glow (same interaction as dark mode) */
-.theme-toggle-glow {
-  background: radial-gradient(
-    circle at 70% 30%,
-    rgba(28, 25, 23, 0.35) 0%,
-    rgba(12, 10, 9, 0.15) 50%,
-    transparent 75%
-  );
-  filter: blur(14px);
-}
-/* Dark mode: same gradient glow as featured employer card, animated */
-html.dark .theme-toggle-glow {
-  --glow-angle: 0deg;
-  background: conic-gradient(
-    from var(--glow-angle),
-    var(--color-accent),
-    #7c3aed,
-    #ec4899,
-    var(--color-accent)
-  );
-  filter: blur(20px);
-  opacity: 0;
-  animation: glow-gradient-spin 8s linear infinite;
-}
-html.dark .theme-toggle-glow.theme-toggle-glow-visible {
-  opacity: 0.45;
 }
 
 .exp-gradient-border {
@@ -618,8 +517,7 @@ html.dark .theme-toggle-glow.theme-toggle-glow-visible {
   background: conic-gradient(
     from 0deg,
     var(--color-accent),
-    #7c3aed,
-    #ec4899,
+    var(--color-accent-2),
     var(--color-accent)
   );
   animation: gradient-border-spin 6s linear infinite;

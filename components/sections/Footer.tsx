@@ -215,7 +215,7 @@ export function Footer() {
           </h2>
 
           <p
-            className="mt-12 font-contact-email text-4xl font-normal tracking-tight text-white/95 sm:text-5xl md:text-6xl"
+            className="mt-12 font-display text-4xl font-normal tracking-tight text-white/95 sm:text-5xl md:text-6xl"
             aria-label={`Email: ${email}`}
           >
             {email}

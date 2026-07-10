@@ -20,8 +20,10 @@ const config: Config = {
         "span-19": "span 19 / span 19",
         "span-20": "span 20 / span 20",
       },
-      // Type scale: hero headline, section titles, body
+      // Type scale: hero headline, section titles, body; "display" is the
+      // larger editorial size reserved for case study heroes.
       fontSize: {
+        "display": ["clamp(2.75rem, 6vw, 4.5rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
         "hero": ["clamp(2.25rem, 5vw, 3.5rem)", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
         "section": ["0.8125rem", { lineHeight: "1.2", letterSpacing: "0.08em" }],
         "body-lg": ["1.125rem", { lineHeight: "1.6" }],
@@ -30,7 +32,8 @@ const config: Config = {
         "caption": ["0.8125rem", { lineHeight: "1.4" }],
       },
       fontFamily: {
-        "contact-email": ["var(--font-contact-email)", "Georgia", "serif"],
+        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Georgia", "serif"],
         "hero-name": ["var(--font-hero-name)", "cursive"],
       },
       colors: {
@@ -46,6 +49,11 @@ const config: Config = {
           hover: "var(--color-accent-hover)",
           muted: "var(--color-accent-muted)",
         },
+        "accent-2": {
+          DEFAULT: "var(--color-accent-2)",
+          hover: "var(--color-accent-2-hover)",
+        },
+        ring: "var(--color-ring)",
         border: {
           DEFAULT: "var(--color-border)",
           subtle: "var(--color-border-subtle)",

@@ -76,7 +76,7 @@ export function CaseStudyHero({ project }: CaseStudyHeroProps) {
         <p className="text-section font-semibold uppercase tracking-wider text-accent">
           Case Study
         </p>
-        <h1 className="mt-2 text-hero font-bold text-text">{project.title}</h1>
+        <h1 className="mt-2 text-display font-display font-bold text-text">{project.title}</h1>
         {project.tagline && (
           <p className="mt-3 max-w-2xl text-body-lg text-text-muted">
             {project.tagline}

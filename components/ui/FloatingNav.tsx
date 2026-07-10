@@ -197,11 +197,10 @@ export function FloatingNav() {
                   }}
                   className="flex items-center gap-2.5"
                 >
-                  <span className="rounded-full border border-orange-400/20 bg-neutral-950/95 px-3.5 py-2 text-[13px] font-medium text-orange-400 shadow-lg backdrop-blur-md">
+                  <span className="rounded-full border border-accent-2/20 bg-neutral-950/95 px-3.5 py-2 text-[13px] font-medium text-accent-2 shadow-lg backdrop-blur-md">
                     AI Chat
                   </span>
-                  <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-orange-400/20 shadow-lg backdrop-blur-md text-white"
-                    style={{ backgroundColor: "#fb923c" }}
+                  <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-accent-2/20 bg-accent-2 shadow-lg backdrop-blur-md text-white"
                   >
                     <ChatBubbleIcon />
                   </span>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Ephesis } from "next/font/google";
+import { Inter, Playfair_Display, Ephesis } from "next/font/google";
 import "@/styles/globals.css";
 import { PageShell } from "@/components/ui/PageShell";
 import { ScrollToHash } from "@/components/ui/ScrollToHash";
@@ -9,10 +9,16 @@ import { ArrivalCoverGate } from "@/components/ui/ArrivalCoverGate";
 import { Footer } from "@/components/sections/Footer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
+});
+
 const playfair = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-contact-email",
+  variable: "--font-display",
 });
 
 const ephesis = Ephesis({
@@ -50,7 +56,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: darkScript }} />
         <script dangerouslySetInnerHTML={{ __html: arrivalScript }} />
       </head>
-      <body className={`min-h-screen bg-background ${playfair.variable} ${ephesis.variable}`}>
+      <body className={`min-h-screen bg-background font-sans ${inter.variable} ${playfair.variable} ${ephesis.variable}`}>
         <a
           href="#main-content"
           className="absolute left-[-9999px] top-4 z-[200] rounded bg-accent px-4 py-2 text-sm font-medium text-white ring-2 ring-ring ring-offset-2 ring-offset-background outline-none transition-[left,top] focus:left-4 focus:top-4 focus:overflow-visible"
