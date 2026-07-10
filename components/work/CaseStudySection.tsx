@@ -4,7 +4,9 @@ import Image from "next/image";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-import { CaseStudyImagePlaceholder } from "./CaseStudyImagePlaceholder";
+import { CaseStudyGallery } from "@/components/work/CaseStudyGallery";
+import { CaseStudyBeforeAfter } from "@/components/work/CaseStudyBeforeAfter";
+import type { CaseStudySection as CaseStudySectionData } from "@/content/projects";
 
 interface CaseStudySectionProps {
   heading: string;
@@ -13,6 +15,8 @@ interface CaseStudySectionProps {
   imageAlt?: string;
   imageAspect?: "video" | "square" | "wide";
   callout?: string;
+  variant?: CaseStudySectionData["variant"];
+  images?: CaseStudySectionData["images"];
   index: number;
   className?: string;
 }
@@ -30,6 +34,8 @@ export function CaseStudySection({
   imageAlt,
   imageAspect = "video",
   callout,
+  variant,
+  images,
   index,
   className = "",
 }: CaseStudySectionProps) {
@@ -59,33 +65,39 @@ export function CaseStudySection({
         </ScrollReveal>
       )}
 
-      {/* Section image or placeholder */}
-      <div ref={imageRef} className="mt-8">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={imageInView ? { opacity: 1, scale: 1 } : undefined}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          {image ? (
-            <div
-              className={`relative w-full overflow-hidden rounded-xl border border-border bg-surface ${aspectClasses[imageAspect]}`}
+      {variant === "gallery" && images ? (
+        <div ref={imageRef}>
+          <CaseStudyGallery images={images} />
+        </div>
+      ) : variant === "beforeAfter" && images ? (
+        <div ref={imageRef}>
+          <CaseStudyBeforeAfter images={images} />
+        </div>
+      ) : (
+        // Section image — omitted entirely when there's no real asset,
+        // rather than rendering an empty placeholder block (D3).
+        image && (
+          <div ref={imageRef} className="mt-8">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={imageInView ? { opacity: 1, scale: 1 } : undefined}
+              transition={{ duration: 0.5, ease: "easeOut" }}
             >
-              <Image
-                src={image}
-                alt={imageAlt ?? heading}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 960px"
-              />
-            </div>
-          ) : (
-            <CaseStudyImagePlaceholder
-              label={heading}
-              aspectRatio={imageAspect}
-            />
-          )}
-        </motion.div>
-      </div>
+              <div
+                className={`relative w-full overflow-hidden rounded-xl border border-border bg-surface ${aspectClasses[imageAspect]}`}
+              >
+                <Image
+                  src={image}
+                  alt={imageAlt ?? heading}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 960px"
+                />
+              </div>
+            </motion.div>
+          </div>
+        )
+      )}
     </div>
   );
 }

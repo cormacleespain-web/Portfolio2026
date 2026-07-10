@@ -12,6 +12,17 @@ export interface CaseStudySection {
   imageAlt?: string;
   imageAspect?: "video" | "square" | "wide";
   callout?: string;
+  /** Render style: default prose, or a specialized block */
+  variant?: "prose" | "gallery" | "beforeAfter" | "metricsRow";
+  /** For variant "gallery" / "beforeAfter": multiple images with alts */
+  images?: { src: string; alt: string; caption?: string }[];
+}
+
+export interface ImpactMetric {
+  label: string;
+  value: string;
+  /** e.g. "internal measure, directional" — rendered as a footnote rather than presented as a precise figure */
+  caveat?: string;
 }
 
 export interface Project {
@@ -34,13 +45,19 @@ export interface Project {
   experienceIndex?: number;
   /** If true, hide from Selected Works and timeline (project page still accessible via URL) */
   hidden?: boolean;
+  /** Client/employer display line, e.g. "Oxford Analytica · via Wizeline & Dow Jones" */
+  client?: string;
+  /** Shown as an NDA notice banner on the case study page */
+  confidentialityNote?: string;
+  /** Platform/domain chips, e.g. ["Web platform", "Enterprise SaaS"] */
+  platform?: string[];
 
   // ── Structured case study fields ────────────────────────────────────
   role?: string;
   team?: string;
   tools?: string[];
   problem?: string;
-  impact?: { label: string; value: string }[];
+  impact?: ImpactMetric[];
   sections?: CaseStudySection[];
   reflection?: string;
   nextProject?: string;
@@ -70,7 +87,6 @@ export const projects: Project[] = [
       { label: "Mobile-first coverage", value: "80%" },
       { label: "User pain-point themes identified", value: "5" },
       { label: "Testing methods used", value: "3" },
-      { label: "User satisfaction", value: "+↑" },
     ],
 
     sections: [

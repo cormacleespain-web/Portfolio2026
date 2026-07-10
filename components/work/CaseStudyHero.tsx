@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import type { Project } from "@/content/projects";
+import { CaseStudyNdaNotice } from "@/components/work/CaseStudyNdaNotice";
 
 interface CaseStudyHeroProps {
   project: Project;
@@ -77,10 +78,30 @@ export function CaseStudyHero({ project }: CaseStudyHeroProps) {
           Case Study
         </p>
         <h1 className="mt-2 text-display font-display font-bold text-text">{project.title}</h1>
+        {project.client && (
+          <p className="mt-2 text-body-sm text-text-muted">{project.client}</p>
+        )}
         {project.tagline && (
           <p className="mt-3 max-w-2xl text-body-lg text-text-muted">
             {project.tagline}
           </p>
+        )}
+        {project.platform?.length && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {project.platform.map((p) => (
+              <span
+                key={p}
+                className="inline-flex items-center rounded-full border border-border bg-surface px-3 py-1 text-caption text-text-muted"
+              >
+                {p}
+              </span>
+            ))}
+          </div>
+        )}
+        {project.confidentialityNote && (
+          <div className="mt-5">
+            <CaseStudyNdaNotice note={project.confidentialityNote} />
+          </div>
         )}
       </motion.div>
 

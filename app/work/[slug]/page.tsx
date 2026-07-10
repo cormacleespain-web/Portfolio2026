@@ -166,6 +166,8 @@ export default async function WorkPage({ params }: WorkPageProps) {
                 imageAlt={section.imageAlt}
                 imageAspect={section.imageAspect}
                 callout={section.callout}
+                variant={section.variant}
+                images={section.images}
                 index={i}
               />
             ))}

@@ -2,14 +2,10 @@
 
 import { motion, useInView } from "motion/react";
 import { useRef, useEffect, useState } from "react";
-
-interface Metric {
-  label: string;
-  value: string;
-}
+import type { ImpactMetric } from "@/content/projects";
 
 interface CaseStudyImpactProps {
-  metrics: Metric[];
+  metrics: ImpactMetric[];
   className?: string;
 }
 
@@ -76,6 +72,9 @@ export function CaseStudyImpact({
               <AnimatedValue value={m.value} inView={inView} />
             </p>
             <p className="mt-2 text-body-sm text-text-muted">{m.label}</p>
+            {m.caveat && (
+              <p className="mt-1 text-caption text-text-subtle">{m.caveat}</p>
+            )}
           </motion.div>
         ))}
       </div>

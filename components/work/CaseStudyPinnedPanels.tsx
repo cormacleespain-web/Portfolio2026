@@ -5,6 +5,8 @@ import Image from "next/image";
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 import type { CaseStudySection } from "@/content/projects";
 import type { TimelinePhase } from "@/components/work/CaseStudyTimeline";
+import { CaseStudyGallery } from "@/components/work/CaseStudyGallery";
+import { CaseStudyBeforeAfter } from "@/components/work/CaseStudyBeforeAfter";
 
 interface CaseStudyPinnedPanelsProps {
   phases: TimelinePhase[];
@@ -82,18 +84,24 @@ function SectionCard({
         </blockquote>
       )}
 
-      {section.image && (
-        <div
-          className={`relative mt-6 w-full overflow-hidden rounded-xl border border-border bg-surface ${aspectClasses[section.imageAspect ?? "video"]}`}
-        >
-          <Image
-            src={section.image}
-            alt={section.imageAlt ?? section.heading}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 960px"
-          />
-        </div>
+      {section.variant === "gallery" && section.images ? (
+        <CaseStudyGallery images={section.images} />
+      ) : section.variant === "beforeAfter" && section.images ? (
+        <CaseStudyBeforeAfter images={section.images} />
+      ) : (
+        section.image && (
+          <div
+            className={`relative mt-6 w-full overflow-hidden rounded-xl border border-border bg-surface ${aspectClasses[section.imageAspect ?? "video"]}`}
+          >
+            <Image
+              src={section.image}
+              alt={section.imageAlt ?? section.heading}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 960px"
+            />
+          </div>
+        )
       )}
     </div>
   );
