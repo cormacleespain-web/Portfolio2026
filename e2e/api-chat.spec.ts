@@ -28,7 +28,7 @@ test.describe("/api/chat validation (T6)", () => {
 
   test("rejects malformed JSON", async ({ request }) => {
     const res = await request.post("/api/chat", {
-      data: "not json",
+      data: Buffer.from("{unterminated"),
       headers: { "Content-Type": "application/json" },
     });
     expect(res.status()).toBe(400);
