@@ -53,6 +53,8 @@ Answer questions conversationally and accurately based ONLY on the information b
 
 When discussing case studies, reference specific details like tools used, process steps, and outcomes. If someone asks about a project, you can suggest they visit /work/<slug> for the full case study.
 
+If someone asks about unreleased, confidential, or in-progress work that isn't described below, decline gracefully — say that project isn't public yet rather than speculating or inventing details.
+
 ---
 
 # About Cormac Lee
@@ -83,25 +85,70 @@ ${projectSummaries}`;
 
 const SYSTEM_PROMPT = buildSystemPrompt();
 
-export async function POST(req: NextRequest) {
-  try {
-    const { messages } = await req.json();
+const MAX_MESSAGES = 20;
+const MAX_MESSAGE_LENGTH = 4000;
 
-    if (!process.env.API_KEY) {
-      return new Response(
-        JSON.stringify({ error: "OpenAI API key not configured" }),
-        { status: 503, headers: { "Content-Type": "application/json" } },
-      );
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+function validateMessages(body: unknown): ChatMessage[] | null {
+  if (typeof body !== "object" || body === null || !("messages" in body)) {
+    return null;
+  }
+  const { messages } = body as { messages: unknown };
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > MAX_MESSAGES) {
+    return null;
+  }
+  for (const m of messages) {
+    if (
+      typeof m !== "object" ||
+      m === null ||
+      (m.role !== "user" && m.role !== "assistant") ||
+      typeof m.content !== "string" ||
+      m.content.length === 0 ||
+      m.content.length > MAX_MESSAGE_LENGTH
+    ) {
+      return null;
     }
+  }
+  return messages as ChatMessage[];
+}
 
+function jsonResponse(status: number, error: string) {
+  return new Response(JSON.stringify({ error }), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+export async function POST(req: NextRequest) {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return jsonResponse(400, "Invalid request body");
+  }
+
+  const messages = validateMessages(body);
+  if (!messages) {
+    return jsonResponse(
+      400,
+      `Invalid messages: expected 1-${MAX_MESSAGES} messages, each under ${MAX_MESSAGE_LENGTH} characters`,
+    );
+  }
+
+  if (!process.env.API_KEY) {
+    return jsonResponse(503, "Assistant unavailable — API key not configured");
+  }
+
+  try {
     const stream = await getClient().chat.completions.create({
       model: "gpt-4o-mini",
       stream: true,
       max_tokens: 1024,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        ...messages.slice(-20),
-      ],
+      messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
     });
 
     const encoder = new TextEncoder();
@@ -119,6 +166,7 @@ export async function POST(req: NextRequest) {
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (err) {
+          console.error("[api/chat] stream error:", err instanceof Error ? err.message : err);
           controller.error(err);
         }
       },
@@ -131,10 +179,20 @@ export async function POST(req: NextRequest) {
         Connection: "keep-alive",
       },
     });
-  } catch {
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    );
+  } catch (err) {
+    if (err instanceof OpenAI.APIError) {
+      if (err.status === 401 || err.status === 403) {
+        console.error("[api/chat] OpenAI auth error, status:", err.status);
+        return jsonResponse(503, "Assistant unavailable — please try again later");
+      }
+      if (err.status === 429) {
+        console.error("[api/chat] OpenAI rate limited");
+        return jsonResponse(429, "Assistant is busy — please try again shortly");
+      }
+      console.error("[api/chat] OpenAI API error:", err.status, err.message);
+      return jsonResponse(500, "Something went wrong talking to the assistant");
+    }
+    console.error("[api/chat] unexpected error:", err instanceof Error ? err.message : err);
+    return jsonResponse(500, "Internal server error");
   }
 }

@@ -10,6 +10,10 @@ interface Message {
   content: string;
 }
 
+// Mirrors the server's cap (app/api/chat/route.ts) so a long conversation
+// trims client-side instead of the request being rejected with a 400.
+const MAX_MESSAGES = 20;
+
 const MOBILE_QUERY = "(max-width: 767px)";
 
 function subscribeMobile(callback: () => void) {
@@ -137,7 +141,7 @@ export function ChatWidget() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: newMessages.map((m) => ({
+          messages: newMessages.slice(-MAX_MESSAGES).map((m) => ({
             role: m.role,
             content: m.content,
           })),
@@ -145,8 +149,14 @@ export function ChatWidget() {
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Request failed" }));
-        const errorContent = `Sorry, something went wrong: ${err.error || "Unknown error"}`;
+        let errorContent: string;
+        if (res.status === 503) {
+          errorContent = "The assistant is temporarily unavailable. Please try again in a bit.";
+        } else if (res.status === 429) {
+          errorContent = "The assistant is busy right now — please try again shortly.";
+        } else {
+          errorContent = "Sorry, something went wrong. Please try again.";
+        }
         setMessages([
           ...newMessages,
           { role: "assistant", content: errorContent },
