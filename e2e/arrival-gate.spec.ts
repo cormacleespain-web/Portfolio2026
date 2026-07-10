@@ -26,17 +26,31 @@ test.describe("Arrival gate", () => {
     await expect(page.getByRole("alert")).toBeVisible();
   });
 
-  // Step 2 ("scroll/swipe/drag to enter") has no keyboard or AT equivalent yet —
-  // tracked as A2 in UpgradePortfolio-v2.md, fixed in Phase 2. This test is
-  // written against the fixed behavior and flipped on when A2 lands.
-  test.fixme(
-    "step 2 can be dismissed via keyboard (A2)",
-    async ({ page }) => {
-      await page.goto("/");
-      await page.getByLabel("Site password").fill(SITE_PASSWORD);
-      await page.getByLabel("Site password").press("Enter");
-      await page.keyboard.press("Enter");
-      await expect(page.locator("#main-content")).toBeVisible();
-    },
-  );
+  test("step 2 can be dismissed via keyboard (A2)", async ({ page }) => {
+    await page.goto("/");
+    await page.getByLabel("Site password").fill(SITE_PASSWORD);
+    await page.getByLabel("Site password").press("Enter");
+
+    const enterButton = page.getByRole("button", { name: "Enter site" });
+    await expect(enterButton).toBeVisible();
+    await page.keyboard.press("Enter");
+
+    await expect
+      .poll(async () => page.evaluate(() => sessionStorage.getItem("portfolio-arrival-dismissed")))
+      .toBe("1");
+  });
+
+  test("step 2 can be dismissed via the visible Enter site button", async ({ page }) => {
+    await page.goto("/");
+    await page.getByLabel("Site password").fill(SITE_PASSWORD);
+    await page.getByLabel("Site password").press("Enter");
+
+    const enterButton = page.getByRole("button", { name: "Enter site" });
+    await expect(enterButton).toBeVisible();
+    await enterButton.click();
+
+    await expect
+      .poll(async () => page.evaluate(() => sessionStorage.getItem("portfolio-arrival-dismissed")))
+      .toBe("1");
+  });
 });

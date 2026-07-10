@@ -47,6 +47,12 @@ export function NoiseSphereScene({
   positionX = 0,
 }: NoiseSphereSceneProps = {}) {
   const pointsRef = useRef<THREE.Points>(null);
+  const prefersReducedMotionRef = useRef(false);
+  useEffect(() => {
+    prefersReducedMotionRef.current = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+  }, []);
   const sphereUniforms = useMemo(
     () => ({
       u_time: { value: 0 },
@@ -70,6 +76,8 @@ export function NoiseSphereScene({
   );
 
   useFrame((state) => {
+    // Static frame under reduced motion: skip time/rotation updates entirely.
+    if (prefersReducedMotionRef.current) return;
     const t = state.clock.getElapsedTime();
     sphereUniforms.u_time.value = t;
     pointsUniforms.u_time.value = t;
@@ -80,6 +88,12 @@ export function NoiseSphereScene({
   });
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      // Static frame: land on a representative mid-animation value, no tween.
+      sphereUniforms.u_progress.value = 3;
+      pointsUniforms.u_progress.value = 0.4;
+      return;
+    }
     const tl = gsap.timeline({ repeat: -1, yoyo: true });
     tl.to(sphereUniforms.u_progress, {
       value: 5,

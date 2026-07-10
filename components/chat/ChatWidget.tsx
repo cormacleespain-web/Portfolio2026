@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useSyncExternalStore } from "react";
 import { motion, AnimatePresence, type PanInfo } from "motion/react";
 import { MarkdownText } from "./MarkdownText";
+import { useArrivalDismissed } from "@/hooks/useArrivalDismissed";
 
 interface Message {
   role: "user" | "assistant";
@@ -26,13 +27,25 @@ function useIsMobile() {
 }
 
 export function ChatWidget() {
+  const dismissed = useArrivalDismissed();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fabRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const liveRegionRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+
+  const focusChatTrigger = useCallback(() => {
+    if (isMobile) {
+      document.querySelector<HTMLElement>('[aria-label="AI Chat"]')?.focus();
+    } else {
+      fabRef.current?.focus();
+    }
+  }, [isMobile]);
 
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
@@ -67,6 +80,37 @@ export function ChatWidget() {
     }
   }, [open, isMobile]);
 
+  // Escape closes and returns focus to whichever control opened the chat;
+  // Tab is trapped inside the panel while it's open.
+  useEffect(() => {
+    if (!open) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+        focusChatTrigger();
+        return;
+      }
+      if (e.key === "Tab" && panelRef.current) {
+        const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, focusChatTrigger]);
+
   function handleDragEnd(_: unknown, info: PanInfo) {
     if (info.offset.y > 80 || info.velocity.y > 300) {
       setOpen(false);
@@ -83,6 +127,7 @@ export function ChatWidget() {
     setMessages(newMessages);
     setInput("");
     setStreaming(true);
+    if (liveRegionRef.current) liveRegionRef.current.textContent = "Assistant is typing…";
 
     const assistantMsg: Message = { role: "assistant", content: "" };
     setMessages([...newMessages, assistantMsg]);
@@ -101,10 +146,12 @@ export function ChatWidget() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Request failed" }));
+        const errorContent = `Sorry, something went wrong: ${err.error || "Unknown error"}`;
         setMessages([
           ...newMessages,
-          { role: "assistant", content: `Sorry, something went wrong: ${err.error || "Unknown error"}` },
+          { role: "assistant", content: errorContent },
         ]);
+        if (liveRegionRef.current) liveRegionRef.current.textContent = errorContent;
         setStreaming(false);
         return;
       }
@@ -146,12 +193,17 @@ export function ChatWidget() {
             }
           }
         }
+        if (liveRegionRef.current) {
+          liveRegionRef.current.textContent = accumulated || "Assistant replied.";
+        }
       }
     } catch {
+      const errorContent = "Sorry, I couldn't connect. Please try again.";
       setMessages([
         ...newMessages,
-        { role: "assistant", content: "Sorry, I couldn't connect. Please try again." },
+        { role: "assistant", content: errorContent },
       ]);
+      if (liveRegionRef.current) liveRegionRef.current.textContent = errorContent;
     }
 
     setStreaming(false);
@@ -159,6 +211,9 @@ export function ChatWidget() {
 
   const chatContent = (
     <>
+      {/* Announces the assistant's reply once complete (not per streamed token) */}
+      <div ref={liveRegionRef} aria-live="polite" aria-atomic="true" className="sr-only" />
+
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3 overscroll-contain">
         {messages.length === 0 && (
@@ -203,7 +258,7 @@ export function ChatWidget() {
                   msg.content
                 )
               ) : streaming && i === messages.length - 1 ? (
-                <span className="inline-flex gap-1">
+                <span className="inline-flex gap-1" aria-hidden>
                   <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce" style={{ animationDelay: "0ms" }} />
                   <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce" style={{ animationDelay: "150ms" }} />
                   <span className="h-1.5 w-1.5 rounded-full bg-text-muted animate-bounce" style={{ animationDelay: "300ms" }} />
@@ -242,10 +297,14 @@ export function ChatWidget() {
     </>
   );
 
+  // Not in the tab/AT order while the arrival gate is covering the page.
+  if (!dismissed) return null;
+
   return (
     <>
       {/* Desktop-only FAB */}
       <button
+        ref={fabRef}
         onClick={() => setOpen(!open)}
         aria-label={open ? "Close chat" : "Chat with AI assistant"}
         className={`fixed bottom-6 right-6 z-[100] hidden h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 md:flex ${
@@ -286,8 +345,12 @@ export function ChatWidget() {
                 {/* Sheet */}
                 <motion.div
                   key="chat-sheet"
+                  ref={panelRef}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Cormac's Portfolio Bot chat"
                   className="fixed inset-x-0 bottom-0 z-[151] flex flex-col overflow-hidden rounded-t-2xl bg-surface shadow-2xl md:hidden"
-                  style={{ height: "85vh" }}
+                  style={{ height: "85dvh" }}
                   initial={{ y: "100%" }}
                   animate={{ y: 0 }}
                   exit={{ y: "100%" }}
@@ -334,8 +397,12 @@ export function ChatWidget() {
             {!isMobile && (
               <motion.div
                 key="chat-desktop"
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Cormac's Portfolio Bot chat"
                 className="fixed bottom-24 right-6 z-[100] hidden w-[360px] flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-2xl md:flex"
-                style={{ height: "min(500px, calc(100vh - 8rem))" }}
+                style={{ height: "min(500px, calc(100dvh - 8rem))" }}
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}

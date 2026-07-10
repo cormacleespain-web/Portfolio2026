@@ -14,6 +14,7 @@ export function ShootingStarBackground() {
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const handleMove = (e: MouseEvent) => {
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;

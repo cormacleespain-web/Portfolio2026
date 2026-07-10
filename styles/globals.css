@@ -624,6 +624,17 @@ html.dark .starfield .star {
 .shooting-star-4 { animation-duration: 2.4s; }
 .shooting-star-5 { animation-duration: 2.1s; }
 
+@media (prefers-reduced-motion: reduce) {
+  .starfield .star {
+    animation: none;
+    opacity: var(--star-base, 0.4);
+  }
+  .shooting-star {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 /* All Work carousel: hide scrollbar, keep scroll */
 .scrollbar-hide {
   -ms-overflow-style: none;

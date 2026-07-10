@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, useRef, type ReactElement } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
+import { useArrivalDismissed } from "@/hooks/useArrivalDismissed";
 
 function HomeIcon() {
   return (
@@ -71,6 +72,7 @@ type HoverRect = { left: number; top: number; width: number; height: number } | 
 
 export function FloatingNav() {
   const pathname = usePathname();
+  const dismissed = useArrivalDismissed();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoverGlowRect, setHoverGlowRect] = useState<HoverRect>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -133,6 +135,10 @@ export function FloatingNav() {
   });
 
   const isHome = pathname === "/";
+
+  // Not in the tab/AT order while the arrival gate is covering the page —
+  // it's visually hidden underneath but was previously still focusable.
+  if (!dismissed) return null;
 
   const linkClassName =
     "rounded-full px-4 py-2 text-body-sm font-medium text-white/90 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-neutral-900 inline-flex items-center justify-center";

@@ -38,7 +38,7 @@ export function OtherWorks() {
                   {/* Spacer matches gap between logos; negative margin so seam gap = single gap not gap+spacer */}
                   <span className="marquee-separator w-12 shrink-0 md:w-16" aria-hidden />
                 </span>
-                <span className="marquee-duplicate flex shrink-0 items-center gap-12 md:gap-16">
+                <span className="marquee-duplicate flex shrink-0 items-center gap-12 md:gap-16" aria-hidden>
                   {brands.map((brand) => (
                     <BrandLogo key={`b-${brand.name}`} brand={brand} />
                   ))}

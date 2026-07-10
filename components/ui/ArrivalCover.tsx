@@ -97,6 +97,21 @@ export function ArrivalCover() {
     setArrivalDismissed(true);
   }, []);
 
+  // Keyboard equivalent for step 2 (wheel/touch/drag-only otherwise): Enter,
+  // Space, or ArrowDown enters the site immediately. Same code path a
+  // reduced-motion user gets via the visible "Enter site" button.
+  useEffect(() => {
+    if (visible !== true) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
+        e.preventDefault();
+        dismiss();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [visible, dismiss]);
+
   const handleUnlockSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -358,9 +373,11 @@ export function ArrivalCover() {
             }
           : undefined
       }
-      aria-hidden
+      role="dialog"
+      aria-modal="true"
+      aria-label="Site entrance"
     >
-      <div className="flex flex-1 items-center justify-center w-full shrink-0">
+      <div className="flex flex-1 items-center justify-center w-full shrink-0" aria-hidden>
         <div
           data-arrival-canvas-wrap
           className="arrival-cover-canvas-wrap relative h-[400px] min-h-[400px] w-full max-w-[400px] overflow-hidden bg-black md:h-[520px] md:min-h-[520px] md:max-w-[520px]"
@@ -397,7 +414,7 @@ export function ArrivalCover() {
               setPasswordError("");
             }}
             placeholder="Enter password"
-            className="arrival-step1-input w-full max-w-[280px] rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-center text-white placeholder:text-center placeholder:text-white/50 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/10"
+            className="arrival-step1-input w-full max-w-[280px] rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-center text-white placeholder:text-center placeholder:text-white/50 focus:border-accent-2 focus:outline-none focus:ring-2 focus:ring-accent-2 focus:ring-offset-2 focus:ring-offset-black"
             autoComplete="current-password"
             aria-label="Site password"
           />
@@ -416,6 +433,7 @@ export function ArrivalCover() {
           <div
             className="arrival-cover-glow absolute bottom-0 left-0 right-0 pointer-events-none bg-gradient-to-t from-[var(--color-accent)]/40 via-[var(--color-accent)]/10 to-transparent"
             style={{ height: `${glowHeight}vh` }}
+            aria-hidden
           />
           <div
             className="arrival-cover-edge-glow"
@@ -450,11 +468,18 @@ export function ArrivalCover() {
                 <path d="M12 19V5M5 12l7-7 7 7" />
               </svg>
             </span>
-            <p className="arrival-cover-action-line text-center text-white/70 tracking-wide">
+            <p className="arrival-cover-action-line text-center text-white/70 tracking-wide" aria-hidden>
               <span key={actionWordIndex} className="arrival-cover-action-word">
                 {ACTION_WORDS[actionWordIndex]}
               </span>
             </p>
+            <button
+              type="button"
+              onClick={dismiss}
+              className="arrival-cover-enter-button relative z-10 rounded-md border border-white/25 bg-white/5 px-4 py-2 text-sm font-medium text-white/90 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            >
+              Enter site
+            </button>
           </div>
         </>
       )}
