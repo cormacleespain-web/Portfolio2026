@@ -7,6 +7,8 @@ import { FloatingNav } from "@/components/ui/FloatingNav";
 import { ArrivalCoverGate } from "@/components/ui/ArrivalCoverGate";
 import { Footer } from "@/components/sections/Footer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { PersonJsonLd } from "@/components/seo/PersonJsonLd";
+import { getSiteUrl, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,8 +30,23 @@ const ephesis = Ephesis({
 });
 
 export const metadata: Metadata = {
-  title: "Cormac Lee",
-  description: "Personal portfolio",
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: SITE_NAME,
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 const darkScript = `document.documentElement.classList.add('dark');try{localStorage.removeItem('theme');}catch(e){}`;
@@ -54,6 +71,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: darkScript }} />
         <script dangerouslySetInnerHTML={{ __html: arrivalScript }} />
+        <PersonJsonLd />
       </head>
       <body className={`min-h-dvh bg-background font-sans ${inter.variable} ${playfair.variable} ${ephesis.variable}`}>
         <a

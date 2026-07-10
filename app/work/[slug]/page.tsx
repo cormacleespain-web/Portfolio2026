@@ -5,7 +5,9 @@ import {
   getProjectBySlug,
   projects,
   type CaseStudySection as CaseStudySectionData,
+  type Project,
 } from "@/content/projects";
+import { CreativeWorkJsonLd } from "@/components/seo/CreativeWorkJsonLd";
 import { CaseStudyHero } from "@/components/work/CaseStudyHero";
 import { CaseStudyProblem } from "@/components/work/CaseStudyProblem";
 import { CaseStudyImpact } from "@/components/work/CaseStudyImpact";
@@ -74,12 +76,38 @@ export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
 }
 
+function getProjectDescription(project: Project): string {
+  if (project.tagline?.trim()) return project.tagline.trim();
+  if (project.problem?.trim()) {
+    const p = project.problem.trim();
+    return p.length > 200 ? `${p.slice(0, 197)}...` : p;
+  }
+  return `Case study: ${project.title}, ${project.category}.`;
+}
+
 export async function generateMetadata({
   params,
 }: WorkPageProps): Promise<Metadata> {
   const { slug } = await params;
   const project = getProjectBySlug(slug);
-  return { title: project?.title ?? "Case Study" };
+  if (!project) return { title: "Case Study" };
+
+  const description = getProjectDescription(project);
+  return {
+    title: project.title,
+    description,
+    openGraph: {
+      title: project.title,
+      description,
+      type: "article",
+      url: `/work/${project.slug}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: project.title,
+      description,
+    },
+  };
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────
@@ -111,6 +139,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
 
     return (
       <article className="py-8">
+        <CreativeWorkJsonLd project={project} />
         <CaseStudyHero project={project} />
 
         {project.problem && <CaseStudyProblem problem={project.problem} />}
@@ -185,6 +214,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
 
   return (
     <article className="py-8">
+      <CreativeWorkJsonLd project={project} />
       <CaseStudyHero project={project} />
 
       {hasLegacy && legacySections[0] && (
