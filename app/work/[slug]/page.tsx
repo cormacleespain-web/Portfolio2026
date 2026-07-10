@@ -19,7 +19,6 @@ import { CaseStudySection } from "@/components/work/CaseStudySection";
 import { CaseStudyReflection } from "@/components/work/CaseStudyReflection";
 import { CaseStudyNextProject } from "@/components/work/CaseStudyNextProject";
 import { CaseStudyPinnedPanels } from "@/components/work/CaseStudyPinnedPanels";
-import { CaseStudyImagePlaceholder } from "@/components/work/CaseStudyImagePlaceholder";
 
 // ── Fallback legacy parser for unmigrated projects ──────────────────────
 
@@ -220,73 +219,43 @@ export default async function WorkPage({ params }: WorkPageProps) {
       <CaseStudyHero project={project} />
 
       {hasLegacy && legacySections[0] && (
-        <>
-          <section className="mb-12">
-            <h2 className="mb-4 text-section font-semibold uppercase tracking-wider text-text-muted">
-              Overview
-            </h2>
-            <p className="max-w-3xl whitespace-pre-wrap text-body text-text-muted">
-              {legacySections[0].body}
-            </p>
-          </section>
-          <CaseStudyImagePlaceholder
-            label="Hero / project context"
-            aspectRatio="wide"
-            className="mb-12"
-          />
-        </>
+        <section className="mb-12">
+          <h2 className="mb-4 text-section font-semibold uppercase tracking-wider text-text-muted">
+            Overview
+          </h2>
+          <p className="max-w-3xl whitespace-pre-wrap text-body text-text-muted">
+            {legacySections[0].body}
+          </p>
+        </section>
       )}
 
       <CaseStudyTimeline phases={legacyPhases} />
 
       <div className="space-y-16">
         {hasLegacy ? (
-          legacySections.slice(1).map((section, i) => (
-            <div key={section.heading}>
-              <section>
-                <h2 className="mb-4 text-section font-semibold uppercase tracking-wider text-text-muted">
-                  {section.heading}
-                </h2>
-                <p className="max-w-3xl whitespace-pre-wrap text-body text-text-muted">
-                  {section.body}
-                </p>
-              </section>
-              <CaseStudyImagePlaceholder
-                label={section.heading}
-                aspectRatio={i % 2 === 0 ? "video" : "square"}
-                className="mt-8"
-              />
-            </div>
-          ))
-        ) : project.description ? (
-          <>
-            <section>
+          legacySections.slice(1).map((section) => (
+            <section key={section.heading}>
               <h2 className="mb-4 text-section font-semibold uppercase tracking-wider text-text-muted">
-                Overview
+                {section.heading}
               </h2>
               <p className="max-w-3xl whitespace-pre-wrap text-body text-text-muted">
-                {project.description}
+                {section.body}
               </p>
             </section>
-            <CaseStudyImagePlaceholder
-              label="Project detail"
-              aspectRatio="video"
-            />
-          </>
-        ) : (
-          <>
-            <p className="max-w-2xl text-body-sm text-text-muted">
-              Case study content coming soon. Edit this project in{" "}
-              <code className="rounded bg-surface border border-border px-1.5 py-0.5 text-caption">
-                content/projects.ts
-              </code>{" "}
-              to add the full story.
+          ))
+        ) : project.description ? (
+          <section>
+            <h2 className="mb-4 text-section font-semibold uppercase tracking-wider text-text-muted">
+              Overview
+            </h2>
+            <p className="max-w-3xl whitespace-pre-wrap text-body text-text-muted">
+              {project.description}
             </p>
-            <CaseStudyImagePlaceholder
-              label="Add hero or key screenshot"
-              aspectRatio="video"
-            />
-          </>
+          </section>
+        ) : (
+          <p className="max-w-2xl text-body-sm text-text-muted">
+            Case study content coming soon.
+          </p>
         )}
       </div>
 

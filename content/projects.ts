@@ -150,7 +150,7 @@ export const projects: Project[] = [
     readTime: "6 min read",
     tagline: "PWA for crew payments and management.",
     image: "/images/projects/crewpay-pwa.png",
-    description: "Case study content from your original portfolio could not be fetched (page timed out). Add your narrative, process, and outcomes here or in a separate MDX file.",
+    description: "Full case study coming soon.",
   },
   {
     slug: "three-ireland-comp",
@@ -234,9 +234,29 @@ export const projects: Project[] = [
     category: "UX/UI · User Research · Branding",
     timeframe: "—",
     readTime: "5 min read",
-    tagline: "Add a short tagline for this project.",
+    tagline: "A product helping third-level students understand and articulate their own strengths — their \"graduate capital\".",
     image: "/images/projects/grad-cap.png",
-    description: "Add your case study content for Grad Cap. Edit in content/projects.ts.",
+
+    role: "UX/UI Designer",
+
+    problem:
+      "Students had no single way to understand their full range of graduate capital — the strengths, behaviors, and skills that make them employable — or to articulate that capital effectively to employers. The brief was to design a product that closed that gap end to end, from self-assessment to communication.",
+
+    sections: [
+      {
+        heading: "Research & Discovery",
+        body: "Research began with a literature review of roughly 15 academic articles and resources to understand graduate capital models, surfacing the \"5 Main Capitals\" framework and how each applies to current and future employment markets, alongside a competitive landscape analysis.\n\nThis was paired with interviews across a deliberately broad panel: students from multiple departments, and employers spanning IT, Medical Devices/Technology, Food & Beverage, and HR/Recruitment — covering different stages of the graduate hiring process from both sides. Findings were synthesized into personas and storyboards.",
+        callout: "No one application was able to provide a user with an understanding of all their capitals as well as how to use them for the user's benefit.",
+      },
+      {
+        heading: "Design Process",
+        body: "The design moved through six stages: defining the information architecture for the psychometric and capital-test frameworks; sketching and low-fidelity prototyping; usability and A/B testing with the original research participants; branding and high-fidelity development incorporating that feedback; a final round of 5-second testing with the same panel; and final product delivery.",
+      },
+      {
+        heading: "Outputs & Delivery",
+        body: "Low-fidelity flows covered registration, login, adding experience, and the capital test itself, mapped end to end. The branding system — app icon, logo variations, color palette, and type — carried through into a six-screen high-fidelity prototype, alongside a product video and presentation.",
+      },
+    ],
   },
   {
     slug: "fitprint",
@@ -244,9 +264,11 @@ export const projects: Project[] = [
     category: "UX/UI · Graphic Design · Branding",
     timeframe: "—",
     readTime: "5 min read",
-    tagline: "Add a short tagline for this project.",
+    tagline: "A fitness app built around wellbeing rather than figures.",
     image: "/images/projects/fitprint.png",
-    description: "Add your case study content for Fitprint. Edit in content/projects.ts.",
+    role: "UX/UI Designer",
+    description:
+      "Fitprint set out to make users more aware of their wellbeing and connect them to fitness through socializing and their local area, rather than emphasizing metrics — a fitness experience not centered on numbers.",
   },
   {
     slug: "helping-hand-student-employment-app",
@@ -254,9 +276,11 @@ export const projects: Project[] = [
     category: "UX/UI · Graphic Design · Illustration",
     timeframe: "—",
     readTime: "5 min read",
-    tagline: "Student employment app.",
+    tagline: "A community-based engagement app connecting students and their local community.",
     image: "/images/projects/helping-hand.png",
-    description: "Add your case study content for Helping Hand. Edit in content/projects.ts.",
+    role: "UX/UI Designer, Graphic Designer, Illustrator",
+    description:
+      "Helping Hand addresses a need for communities to access student resources and talents — enabling third-level students to showcase their skills and availability while connecting them with local community needs.",
   },
 ];
 
