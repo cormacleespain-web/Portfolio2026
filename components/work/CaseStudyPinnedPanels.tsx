@@ -36,7 +36,7 @@ function TimelineCard({ phases }: { phases: TimelinePhase[] }) {
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-accent text-caption font-semibold text-accent">
               {i + 1}
             </span>
-            <span className="text-body-sm font-medium text-text-muted">
+            <span className="text-body-sm font-medium text-text">
               {phase.short ?? phase.label}
             </span>
           </li>
@@ -49,16 +49,20 @@ function TimelineCard({ phases }: { phases: TimelinePhase[] }) {
 function SectionCard({
   section,
   panelIndex,
+  isActive = true,
 }: {
   section: CaseStudySection;
   panelIndex: number;
+  /** False when this panel sits under an aria-hidden ancestor (inactive pinned
+   * panel) — must not be reachable by keyboard/AT in that state. */
+  isActive?: boolean;
 }) {
   const captionColor = panelIndex === 0 ? "text-text" : "text-accent";
 
   return (
     <div
       className="mx-auto w-full max-w-3xl px-6 sm:px-10 overflow-y-auto max-h-[calc(100dvh-6rem)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded"
-      tabIndex={0}
+      tabIndex={isActive ? 0 : -1}
       role="region"
       aria-label={`${section.heading} content`}
     >
@@ -275,7 +279,7 @@ export function CaseStudyPinnedPanels({
             aria-hidden={!isActive}
             aria-current={isActive ? "true" : undefined}
           >
-            <SectionCard section={section} panelIndex={panelIdx} />
+            <SectionCard section={section} panelIndex={panelIdx} isActive={isActive} />
           </article>
         );
       })}

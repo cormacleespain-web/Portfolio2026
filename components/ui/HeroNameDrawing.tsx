@@ -27,6 +27,7 @@ export function HeroNameDrawing({ dismissed = true }: HeroNameDrawingProps) {
     <span
       className="relative top-[0.1em] inline-block align-baseline text-[1.28em]"
       style={{ width: `${SIGNATURE_WIDTH_EM}em` }}
+      role="img"
       aria-label="Cormac Lee"
     >
       <motion.span

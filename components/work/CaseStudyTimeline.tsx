@@ -33,7 +33,7 @@ export function CaseStudyTimeline({
         Design Process
       </p>
 
-      <div className="relative" role="list" aria-label="Process timeline">
+      <div className="relative">
         {/* Animated vertical line */}
         <motion.div
           className="absolute left-[11px] top-2 bottom-2 w-px origin-top bg-accent/30"
@@ -43,7 +43,7 @@ export function CaseStudyTimeline({
           aria-hidden
         />
 
-        <ul className="relative flex flex-col gap-0">
+        <ul className="relative flex flex-col gap-0" aria-label="Process timeline">
           {phases.map((phase, i) => (
             <motion.li
               key={phase.label}

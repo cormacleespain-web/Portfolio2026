@@ -30,9 +30,14 @@ const MIN_SCALE = 0.92;
 const OPACITY_STEP = 0.18;
 const MIN_OPACITY = 0.5;
 
-/** Strip range: logical indices from -STRIP_LEFT to STRIP_RIGHT (1 at 0, infinite feel each way) */
-const STRIP_LEFT = 200;
-const STRIP_RIGHT = 200;
+/**
+ * Strip range: logical indices from -stripLeft to stripRight (1 at 0,
+ * infinite feel each way). Sized to a small buffer per side (not the whole
+ * illusion's worth of copies) — clones outside the single canonical period
+ * are marked `inert` (see isCanonical below), so a much larger buffer would
+ * only add unreachable DOM weight, not extra usable scroll range.
+ */
+const STRIP_BUFFER_PERIODS = 2;
 
 /** Project at logical index: right of 0 is 1,2,3,4,5,6,7,1,2...; left of 0 is 7,6,5,4,3,2,1,7,6... */
 function getProjectAtLogicalIndex(
@@ -177,10 +182,12 @@ const AllWorkCard = memo(function AllWorkCard({
   project,
   isFocused,
   distanceFromCenter,
+  isCanonical,
 }: {
   project: Project;
   isFocused: boolean;
   distanceFromCenter: number;
+  isCanonical: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const tags = categoryTags(project.category);
@@ -204,6 +211,11 @@ const AllWorkCard = memo(function AllWorkCard({
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      // Every project appears once as a real, focusable/clickable card (the
+      // canonical copy); every other physical repetition of the strip — pure
+      // visual filler for the infinite-scroll illusion — is inert: excluded
+      // from tab order, the AT tree, and pointer interaction.
+      inert={!isCanonical}
     >
       <Link
         href={`/work/${project.slug}`}
@@ -272,13 +284,21 @@ function getScrollLeftForCenter(domIndex: number, containerWidth: number) {
 export function AllWork() {
   const list = visibleProjects();
   const count = list.length;
+  // Buffer sized to a couple of full periods per side — enough for a smooth
+  // infinite feel, nowhere near the ~400-node original.
+  const stripLeft = count * STRIP_BUFFER_PERIODS;
+  const stripRight = count * STRIP_BUFFER_PERIODS;
+  // Exactly one period (one real copy of each project) stays interactive;
+  // every other physical repetition is inert (see AllWorkCard).
+  const canonicalStart = -Math.floor(count / 2);
+  const canonicalEnd = canonicalStart + count - 1;
   /** Logical index of the centered card; 0 = project 1 (latest). No start/end – strip is infinite. */
   const [centerLogicalIndex, setCenterLogicalIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   /** Only update state when the centered card actually changes to avoid flicker during scroll */
   const lastCenterLogicalRef = useRef(0);
 
-  const totalCards = STRIP_LEFT + 1 + STRIP_RIGHT;
+  const totalCards = stripLeft + 1 + stripRight;
   /** focusIndex for indicator: 0..6 so "Project (focusIndex+1) of 7" */
   const focusIndex = ((centerLogicalIndex % count) + count) % count;
 
@@ -286,23 +306,23 @@ export function AllWork() {
     const el = scrollRef.current;
     if (!el || count === 0) return;
     const nextLogical = lastCenterLogicalRef.current + 1;
-    const domIndex = nextLogical + STRIP_LEFT;
+    const domIndex = nextLogical + stripLeft;
     el.scrollTo({
       left: getScrollLeftForCenter(domIndex, el.clientWidth),
       behavior: "smooth",
     });
-  }, [count]);
+  }, [count, stripLeft]);
 
   const goBack = useCallback(() => {
     const el = scrollRef.current;
     if (!el || count === 0) return;
     const prevLogical = lastCenterLogicalRef.current - 1;
-    const domIndex = prevLogical + STRIP_LEFT;
+    const domIndex = prevLogical + stripLeft;
     el.scrollTo({
       left: getScrollLeftForCenter(domIndex, el.clientWidth),
       behavior: "smooth",
     });
-  }, [count]);
+  }, [count, stripLeft]);
 
   const handleCarouselKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -320,8 +340,8 @@ export function AllWork() {
   useEffect(() => {
     const el = scrollRef.current;
     if (!el || count === 0) return;
-    el.scrollLeft = getScrollLeftForCenter(STRIP_LEFT, el.clientWidth);
-  }, [count]);
+    el.scrollLeft = getScrollLeftForCenter(stripLeft, el.clientWidth);
+  }, [count, stripLeft]);
 
   useEffect(() => {
     lastCenterLogicalRef.current = centerLogicalIndex;
@@ -338,8 +358,8 @@ export function AllWork() {
         (viewportCenter - padding - CARD_SLOT_HALF) / SLOT_WIDTH;
       const domIndex = Math.round(rawIndex);
       const logicalIndex = Math.max(
-        -STRIP_LEFT,
-        Math.min(STRIP_RIGHT, domIndex - STRIP_LEFT)
+        -stripLeft,
+        Math.min(stripRight, domIndex - stripLeft)
       );
       if (logicalIndex !== lastCenterLogicalRef.current) {
         lastCenterLogicalRef.current = logicalIndex;
@@ -348,7 +368,7 @@ export function AllWork() {
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
-  }, [count]);
+  }, [count, stripLeft, stripRight]);
 
   if (list.length === 0) return null;
 
@@ -380,16 +400,18 @@ export function AllWork() {
             onKeyDown={handleCarouselKeyDown}
           >
           {Array.from({ length: totalCards }, (_, i) => {
-            const logicalIndex = i - STRIP_LEFT;
+            const logicalIndex = i - stripLeft;
             const project = getProjectAtLogicalIndex(logicalIndex, list, count);
             const isFocused = logicalIndex === centerLogicalIndex;
             const distanceFromCenter = Math.abs(logicalIndex - centerLogicalIndex);
+            const isCanonical = logicalIndex >= canonicalStart && logicalIndex <= canonicalEnd;
             return (
               <AllWorkCard
                 key={logicalIndex}
                 project={project}
                 isFocused={isFocused}
                 distanceFromCenter={distanceFromCenter}
+                isCanonical={isCanonical}
               />
             );
           })}
