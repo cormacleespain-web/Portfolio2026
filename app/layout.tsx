@@ -55,7 +55,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: darkScript }} />
         <script dangerouslySetInnerHTML={{ __html: arrivalScript }} />
       </head>
-      <body className={`min-h-screen bg-background font-sans ${inter.variable} ${playfair.variable} ${ephesis.variable}`}>
+      <body className={`min-h-dvh bg-background font-sans ${inter.variable} ${playfair.variable} ${ephesis.variable}`}>
         <a
           href="#main-content"
           className="absolute left-[-9999px] top-4 z-[200] rounded bg-accent px-4 py-2 text-sm font-medium text-white ring-2 ring-ring ring-offset-2 ring-offset-background outline-none transition-[left,top] focus:left-4 focus:top-4 focus:overflow-visible"

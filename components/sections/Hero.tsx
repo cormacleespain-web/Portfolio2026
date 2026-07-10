@@ -33,7 +33,7 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden min-h-screen flex flex-col justify-center pt-[1.6rem] pb-24 md:pt-[2.4rem] md:pb-32"
+      className="relative overflow-hidden min-h-dvh flex flex-col justify-center pt-[1.6rem] pb-24 md:pt-[2.4rem] md:pb-32"
       aria-labelledby="hero-heading"
     >
       <div className="flex flex-col md:flex-row md:items-center md:justify-center md:gap-8">

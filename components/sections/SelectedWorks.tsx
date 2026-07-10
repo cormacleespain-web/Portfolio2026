@@ -63,8 +63,8 @@ function CaseStudyCard({ project, index, total }: { project: FeaturedProject; in
 
   return (
     <article
-      className={`selected-works-card relative z-10 flex min-h-screen flex-col md:grid md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-6 lg:gap-10 ${CARD_BG_CLASSES[index % CARD_BG_CLASSES.length]}`}
-      style={{ minHeight: "100vh" }}
+      className={`selected-works-card relative z-10 flex min-h-dvh flex-col md:grid md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-6 lg:gap-10 ${CARD_BG_CLASSES[index % CARD_BG_CLASSES.length]}`}
+      style={{ minHeight: "100dvh" }}
     >
       <div className="flex items-center justify-center px-6 pt-10 pb-2 md:flex-1 md:min-h-0 md:p-10">
         <div

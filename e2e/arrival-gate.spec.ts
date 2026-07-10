@@ -23,7 +23,10 @@ test.describe("Arrival gate", () => {
     await input.fill("definitely-wrong");
     await input.press("Enter");
 
-    await expect(page.getByRole("alert")).toBeVisible();
+    // Scoped by text, not just role=alert — Next.js's route announcer
+    // (#__next-route-announcer__) also carries role="alert" and would
+    // otherwise make this locator ambiguous.
+    await expect(page.getByText("Invalid password")).toBeVisible();
   });
 
   test("step 2 can be dismissed via keyboard (A2)", async ({ page }) => {

@@ -11,7 +11,7 @@ interface RocketSceneProps {
   controls?: boolean;
   /** Use "none" when behind Hero so hero content stays clickable */
   pointerEvents?: "auto" | "none";
-  /** When true, fill parent only (no minHeight: 100vh) for use inside a section */
+  /** When true, fill parent only (no minHeight: 100dvh) for use inside a section */
   fillParent?: boolean;
   /** Hide the grainy background plane in the scene */
   hideBackground?: boolean;
@@ -40,7 +40,7 @@ export function RocketScene({
       style={{
         width: "100%",
         height: "100%",
-        ...(fillParent ? {} : { minHeight: "100vh" }),
+        ...(fillParent ? {} : { minHeight: "100dvh" }),
         pointerEvents,
         zIndex: 0,
       }}

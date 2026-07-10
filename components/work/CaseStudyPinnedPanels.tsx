@@ -57,7 +57,7 @@ function SectionCard({
 
   return (
     <div
-      className="mx-auto w-full max-w-3xl px-6 sm:px-10 overflow-y-auto max-h-[calc(100vh-6rem)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded"
+      className="mx-auto w-full max-w-3xl px-6 sm:px-10 overflow-y-auto max-h-[calc(100dvh-6rem)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded"
       tabIndex={0}
       role="region"
       aria-label={`${section.heading} content`}
@@ -253,7 +253,7 @@ export function CaseStudyPinnedPanels({
       {/* Card 1: Design Process timeline */}
       <article
         id="pinned-card-0"
-        className={`pinned-panel relative flex h-screen flex-col justify-center ${getBg(0)} will-change-transform`}
+        className={`pinned-panel relative flex h-dvh flex-col justify-center ${getBg(0)} will-change-transform`}
         style={{ zIndex: 1 }}
         aria-hidden={activeIndex !== 0}
         aria-current={activeIndex === 0 ? "true" : undefined}
@@ -270,7 +270,7 @@ export function CaseStudyPinnedPanels({
           <article
             key={section.heading}
             id={`pinned-card-${panelIdx}`}
-            className={`pinned-panel relative flex h-screen flex-col justify-center ${getBg(panelIdx)} will-change-transform`}
+            className={`pinned-panel relative flex h-dvh flex-col justify-center ${getBg(panelIdx)} will-change-transform`}
             style={{ zIndex: panelIdx + 1 }}
             aria-hidden={!isActive}
             aria-current={isActive ? "true" : undefined}
