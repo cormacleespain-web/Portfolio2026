@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { ArrowUp } from "@phosphor-icons/react";
 
 // Dynamically imported (no SSR) so three.js only loads when the gate mounts,
 // not in every route's first-load JS.
@@ -19,9 +20,7 @@ const BOUNCE_BACK_DURATION_MS = 420;
 const BOUNCE_BACK_OVERSHOOT = -0.04; // progress briefly goes slightly negative for "bounce down"
 const SCROLL_IDLE_MS = 100;
 const POLL_INTERVAL_MS = 50;
-const ACTION_WORD_INTERVAL_MS = 4000;
 const DELTA_RATE = 0.0022;
-const ACTION_WORDS = ["Scroll", "Swipe", "Drag"] as const;
 
 export function ArrivalCover() {
   const [unlocked, setUnlocked] = useState<boolean | null>(null);
@@ -33,7 +32,6 @@ export function ArrivalCover() {
   const [progress, setProgress] = useState(0);
   const [isSnapping, setIsSnapping] = useState(false);
   const [isBouncingBack, setIsBouncingBack] = useState(false);
-  const [actionWordIndex, setActionWordIndex] = useState(0);
   const coverRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | undefined>(undefined);
   const snapStartRef = useRef(0);
@@ -84,15 +82,6 @@ export function ArrivalCover() {
       document.documentElement.style.overflow = prevHtml;
     };
   }, [showStep1, showStep2]);
-
-  // Rotate first word: Scroll → Swipe → Drag every 4s
-  useEffect(() => {
-    if (visible !== true) return;
-    const id = setInterval(() => {
-      setActionWordIndex((i) => (i + 1) % ACTION_WORDS.length);
-    }, ACTION_WORD_INTERVAL_MS);
-    return () => clearInterval(id);
-  }, [visible]);
 
   const dismiss = useCallback(() => {
     try {
@@ -365,7 +354,6 @@ export function ArrivalCover() {
 
   const y = -progress * 100;
   const glowHeight = Math.min(40, progress * 55);
-  const conicGlowOpacity = Math.min(1, progress * 2.2);
   const edgeGlowHeight = 20 + progress * 12;
   const edgeGlowOpacity = 0.28 + progress * 0.14;
 
@@ -454,36 +442,13 @@ export function ArrivalCover() {
             <div className="arrival-cover-edge-glow-inner" />
           </div>
           <div
-            className="arrival-cover-conic-glow"
-            style={{ opacity: conicGlowOpacity }}
-            aria-hidden
-          >
-            <div className="arrival-cover-conic-glow-inner" />
-          </div>
-          <div
             className={`arrival-step2-content relative z-10 flex flex-col items-center gap-3 pb-12 md:pb-16 ${
               step2ContentVisible ? "arrival-step2-content-visible" : ""
             }`}
           >
             <span className="arrival-cover-arrow arrival-cover-arrow-float inline-block text-white/90" aria-hidden>
-              <svg
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 19V5M5 12l7-7 7 7" />
-              </svg>
+              <ArrowUp weight="light" className="h-7 w-7" />
             </span>
-            <p className="arrival-cover-action-line text-center text-white/70 tracking-wide" aria-hidden>
-              <span key={actionWordIndex} className="arrival-cover-action-word">
-                {ACTION_WORDS[actionWordIndex]}
-              </span>
-            </p>
             <button
               type="button"
               onClick={dismiss}

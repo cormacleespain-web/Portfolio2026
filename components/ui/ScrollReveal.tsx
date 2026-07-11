@@ -15,9 +15,9 @@ export function ScrollReveal({
   direction?: "up" | "left" | "right";
 }) {
   const offset =
-    direction === "left" ? { x: -24, y: 0 } :
-    direction === "right" ? { x: 24, y: 0 } :
-    { x: 0, y: 24 };
+    direction === "left" ? { x: -32, y: 0 } :
+    direction === "right" ? { x: 32, y: 0 } :
+    { x: 0, y: 32 };
 
   return (
     <motion.div
@@ -25,7 +25,7 @@ export function ScrollReveal({
       initial={{ opacity: 0, ...offset }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.5, ease: "easeOut", delay }}
+      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay }}
     >
       {children}
     </motion.div>

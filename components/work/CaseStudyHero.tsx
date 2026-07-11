@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
+import { ArrowLeft } from "@phosphor-icons/react";
 import { useRef } from "react";
 import type { Project } from "@/content/projects";
 import { CaseStudyNdaNotice } from "@/components/work/CaseStudyNdaNotice";
@@ -36,19 +37,7 @@ export function CaseStudyHero({ project }: CaseStudyHeroProps) {
         href="/#selected-works"
         className="mb-8 inline-flex items-center gap-2 text-body-sm text-text-muted transition-colors hover:text-accent"
       >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden
-        >
-          <path d="M19 12H5M12 19l-7-7 7-7" />
-        </svg>
+        <ArrowLeft weight="light" className="h-5 w-5" aria-hidden />
         Back
       </Link>
 
@@ -70,9 +59,9 @@ export function CaseStudyHero({ project }: CaseStudyHeroProps) {
 
       {/* Title block */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       >
         <p className="text-section font-semibold uppercase tracking-wider text-accent">
           Case Study
@@ -114,8 +103,8 @@ export function CaseStudyHero({ project }: CaseStudyHeroProps) {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
-                duration: 0.4,
-                ease: "easeOut",
+                duration: 0.5,
+                ease: [0.16, 1, 0.3, 1],
                 delay: 0.3 + i * META_ITEMS_DELAY_STEP,
               }}
               className="border-l-2 border-accent pl-4"

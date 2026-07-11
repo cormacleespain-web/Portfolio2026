@@ -32,8 +32,8 @@ const config: Config = {
         "caption": ["0.8125rem", { lineHeight: "1.4" }],
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["var(--font-display)", "Georgia", "serif"],
+        sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         "hero-name": ["var(--font-hero-name)", "cursive"],
       },
       colors: {

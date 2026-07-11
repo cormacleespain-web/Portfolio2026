@@ -47,7 +47,7 @@ export function CaseStudySection({
     <div className={`${className}`}>
       <ScrollReveal direction={isEven ? "left" : "right"} delay={0.05}>
         <section>
-          <h2 className="mb-4 text-section font-semibold uppercase tracking-wider text-text-muted">
+          <h2 className="mb-4 text-xl md:text-2xl font-display font-bold text-text">
             {heading}
           </h2>
           <p className="max-w-3xl whitespace-pre-wrap text-body leading-relaxed text-text-muted">
@@ -81,7 +81,7 @@ export function CaseStudySection({
             <motion.div
               initial={{ opacity: 0, scale: 0.97 }}
               animate={imageInView ? { opacity: 1, scale: 1 } : undefined}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             >
               <div
                 className={`relative w-full overflow-hidden rounded-xl border border-border bg-surface ${aspectClasses[imageAspect]}`}

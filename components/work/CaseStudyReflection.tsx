@@ -14,9 +14,9 @@ export function CaseStudyReflection({
   return (
     <ScrollReveal className={className}>
       <section className="my-16 rounded-2xl border border-border bg-surface px-6 py-10 sm:px-10">
-        <p className="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
+        <h2 className="mb-4 text-xl md:text-2xl font-display font-bold text-accent">
           Reflection
-        </p>
+        </h2>
         <p className="max-w-3xl text-body leading-relaxed text-text-muted">
           {reflection}
         </p>

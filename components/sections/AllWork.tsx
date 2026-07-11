@@ -10,6 +10,7 @@ import {
   useSpring,
   useTransform,
 } from "motion/react";
+import { ArrowUpRight } from "@phosphor-icons/react";
 import { projects } from "@/content/projects";
 import { Section } from "@/components/ui/Section";
 import type { Project } from "@/content/projects";
@@ -159,17 +160,7 @@ function ImageWithHoverIcon({
         }}
         aria-hidden
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="h-5 w-5"
-        >
-          <path d="M9 6l6 6-6 6" />
-        </svg>
+        <ArrowUpRight weight="bold" className="h-5 w-5" />
       </motion.span>
     </div>
   );

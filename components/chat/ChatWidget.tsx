@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useSyncExternalStore } from "react";
 import { motion, AnimatePresence, type PanInfo } from "motion/react";
+import { PaperPlaneRight, X, ChatCircleDots } from "@phosphor-icons/react";
 import { MarkdownText } from "./MarkdownText";
 import { useArrivalDismissed } from "@/hooks/useArrivalDismissed";
 
@@ -153,7 +154,7 @@ export function ChatWidget() {
         if (res.status === 503) {
           errorContent = "The assistant is temporarily unavailable. Please try again in a bit.";
         } else if (res.status === 429) {
-          errorContent = "The assistant is busy right now — please try again shortly.";
+          errorContent = "The assistant is busy right now. Please try again shortly.";
         } else {
           errorContent = "Sorry, something went wrong. Please try again.";
         }
@@ -298,10 +299,7 @@ export function ChatWidget() {
           disabled={!input.trim() || streaming}
           className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-2 text-white transition-colors hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13" />
-            <polygon points="22 2 15 22 11 13 2 9 22 2" />
-          </svg>
+          <PaperPlaneRight weight="light" className="h-[18px] w-[18px]" />
         </button>
       </form>
     </>
@@ -324,14 +322,9 @@ export function ChatWidget() {
         }`}
       >
         {open ? (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          <X weight="light" className="h-6 w-6" />
         ) : (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
+          <ChatCircleDots weight="light" className="h-6 w-6" />
         )}
       </button>
 
@@ -391,10 +384,7 @@ export function ChatWidget() {
                       aria-label="Close chat"
                       className="flex h-8 w-8 items-center justify-center rounded-full text-text-muted hover:text-text hover:bg-surface-hover transition-colors"
                     >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
+                      <X weight="bold" className="h-[18px] w-[18px]" />
                     </button>
                   </div>
 

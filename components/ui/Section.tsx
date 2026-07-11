@@ -29,13 +29,13 @@ export function Section({
   return (
     <section
       id={id}
-      className={`py-12 md:py-16 ${className}`.trim()}
+      className={`py-24 md:py-32 ${className}`.trim()}
       aria-labelledby={id ? `${id}-heading` : undefined}
     >
-      <header className={`mb-8 ${headerClassName}`.trim()}>
+      <header className={`mb-10 ${headerClassName}`.trim()}>
         <h2
           id={id ? `${id}-heading` : undefined}
-          className={titleClassName || "text-section font-semibold uppercase tracking-wider text-text-muted"}
+          className={titleClassName || "text-2xl md:text-3xl font-display font-bold text-text"}
         >
           {title}
         </h2>

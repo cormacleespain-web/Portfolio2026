@@ -1,26 +1,16 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, Ephesis } from "next/font/google";
+import { Ephesis } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import "@/styles/globals.css";
 import { PageShell } from "@/components/ui/PageShell";
 import { ScrollToHash } from "@/components/ui/ScrollToHash";
 import { FloatingNav } from "@/components/ui/FloatingNav";
 import { ArrivalCoverGate } from "@/components/ui/ArrivalCoverGate";
+import { MotionConfigProvider } from "@/components/ui/MotionConfigProvider";
 import { Footer } from "@/components/sections/Footer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { PersonJsonLd } from "@/components/seo/PersonJsonLd";
 import { getSiteUrl, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-sans",
-});
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-display",
-});
 
 const ephesis = Ephesis({
   weight: "400",
@@ -33,7 +23,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
     default: SITE_NAME,
-    template: `%s — ${SITE_NAME}`,
+    template: `%s · ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   openGraph: {
@@ -73,21 +63,23 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: arrivalScript }} />
         <PersonJsonLd />
       </head>
-      <body className={`min-h-dvh bg-background font-sans ${inter.variable} ${playfair.variable} ${ephesis.variable}`}>
+      <body className={`min-h-dvh bg-background font-sans ${GeistSans.variable} ${ephesis.variable}`}>
         <a
           href="#main-content"
           className="absolute left-[-9999px] top-4 z-[200] rounded bg-accent px-4 py-2 text-sm font-medium text-white ring-2 ring-ring ring-offset-2 ring-offset-background outline-none transition-[left,top] focus:left-4 focus:top-4 focus:overflow-visible"
         >
           Skip to main content
         </a>
-        <ScrollToHash />
-        <FloatingNav />
-        <ArrivalCoverGate />
-        <PageShell as="main" className="pb-12 pt-4">
-          <div id="main-content" className="page-grid-span-full min-w-0">{children}</div>
-        </PageShell>
-        <Footer />
-        <ChatWidget />
+        <MotionConfigProvider>
+          <ScrollToHash />
+          <FloatingNav />
+          <ArrivalCoverGate />
+          <PageShell as="main" className="pb-12 pt-4">
+            <div id="main-content" className="page-grid-span-full min-w-0">{children}</div>
+          </PageShell>
+          <Footer />
+          <ChatWidget />
+        </MotionConfigProvider>
       </body>
     </html>
   );

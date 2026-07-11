@@ -3,18 +3,8 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
+import { Copy, ArrowSquareOut } from "@phosphor-icons/react";
 import { siteData } from "@/content/siteData";
-
-/* ── Icons ──────────────────────────────────────────────────── */
-
-function CopyIcon({ className }: { className?: string }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
-  );
-}
 
 const SOCIAL_ICONS: Record<string, { color: string; icon: React.ReactNode }> = {
   LinkedIn: {
@@ -67,7 +57,7 @@ function LocationPill() {
   return (
     <div
       className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2"
-      aria-label="Based in Barcelona — currently active"
+      aria-label="Based in Barcelona, currently active"
     >
       <span className="font-mono text-body-sm text-text">Barcelona</span>
       <span className="h-2 w-2 shrink-0 rounded-full bg-[#22c55e]" aria-hidden />
@@ -234,7 +224,7 @@ export function Footer() {
               {copied ? "Copied!" : "Copy Email"}
             </span>
             <span className="flex h-11 w-11 shrink-0 items-center justify-center bg-white text-[#1A1A1A]">
-              <CopyIcon />
+              <Copy weight="light" className="h-[18px] w-[18px]" aria-hidden />
             </span>
           </motion.button>
 
@@ -242,19 +232,7 @@ export function Footer() {
             {links.map((link) => {
               const meta = SOCIAL_ICONS[link.label] ?? {
                 color: "#a8a29e",
-                icon: (
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-hidden
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
-                ),
+                icon: <ArrowSquareOut weight="light" className="h-5 w-5" aria-hidden />,
               };
               return (
                 <motion.a

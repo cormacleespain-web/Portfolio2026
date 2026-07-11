@@ -28,9 +28,6 @@ function getBg(index: number): string {
 function TimelineCard({ phases }: { phases: TimelinePhase[] }) {
   return (
     <div className="mx-auto w-full max-w-3xl px-6 sm:px-10">
-      <p className="mb-3 text-caption font-semibold uppercase tracking-wider text-text">
-        01
-      </p>
       <h3 className="text-hero font-bold text-text">Design Process</h3>
       <ul className="mt-8 flex flex-col gap-4" aria-label="Process phases">
         {phases.map((phase, i) => (
@@ -50,17 +47,13 @@ function TimelineCard({ phases }: { phases: TimelinePhase[] }) {
 
 function SectionCard({
   section,
-  panelIndex,
   isActive = true,
 }: {
   section: CaseStudySection;
-  panelIndex: number;
   /** False when this panel sits under an aria-hidden ancestor (inactive pinned
-   * panel) — must not be reachable by keyboard/AT in that state. */
+   * panel). Must not be reachable by keyboard/AT in that state. */
   isActive?: boolean;
 }) {
-  const captionColor = panelIndex === 0 ? "text-text" : "text-accent";
-
   return (
     <div
       className="mx-auto w-full max-w-3xl px-6 sm:px-10 overflow-y-auto max-h-[calc(100dvh-6rem)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded"
@@ -68,11 +61,6 @@ function SectionCard({
       role="region"
       aria-label={`${section.heading} content`}
     >
-      <p
-        className={`mb-3 text-caption font-semibold uppercase tracking-wider ${captionColor}`}
-      >
-        {String(panelIndex + 1).padStart(2, "0")}
-      </p>
       <h3 className="text-hero font-bold text-text">{section.heading}</h3>
       <p className="mt-5 max-w-2xl whitespace-pre-wrap text-body-sm leading-relaxed text-text-muted">
         {section.body}
@@ -223,7 +211,7 @@ export function CaseStudyPinnedPanels({
             key={section.heading}
             className={`flex min-h-[60vh] flex-col justify-center ${getBg(i + 1)} px-6 py-16 sm:px-10`}
           >
-            <SectionCard section={section} panelIndex={i + 1} />
+            <SectionCard section={section} />
           </article>
         ))}
       </section>
@@ -287,7 +275,7 @@ export function CaseStudyPinnedPanels({
             aria-hidden={!isActive}
             aria-current={isActive ? "true" : undefined}
           >
-            <SectionCard section={section} panelIndex={panelIdx} isActive={isActive} />
+            <SectionCard section={section} isActive={isActive} />
           </article>
         );
       })}

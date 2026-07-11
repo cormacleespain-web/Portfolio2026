@@ -14,9 +14,9 @@ export function CaseStudyProblem({
   return (
     <ScrollReveal className={className}>
       <section className="my-16 border-l-4 border-accent pl-6 sm:pl-8">
-        <p className="mb-3 text-caption font-semibold uppercase tracking-wider text-accent">
+        <h2 className="mb-3 text-xl md:text-2xl font-display font-bold text-accent">
           The Challenge
-        </p>
+        </h2>
         <p className="max-w-3xl text-body-lg leading-relaxed text-text sm:text-[1.375rem]">
           {problem}
         </p>

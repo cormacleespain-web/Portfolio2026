@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { ArrowRight } from "@phosphor-icons/react";
 import type { Project } from "@/content/projects";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
@@ -50,20 +51,11 @@ export function CaseStudyNextProject({
               )}
               <span className="mt-4 inline-flex items-center gap-1.5 text-body-sm font-medium text-accent">
                 Read case study
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="transition-transform group-hover:translate-x-1"
+                <ArrowRight
+                  weight="light"
+                  className="h-4 w-4 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-1"
                   aria-hidden
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
+                />
               </span>
             </div>
           </motion.div>

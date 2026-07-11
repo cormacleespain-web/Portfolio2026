@@ -26,12 +26,12 @@ export function CaseStudyTimeline({
       className={`my-16 ${className}`.trim()}
       aria-labelledby="timeline-heading"
     >
-      <p
+      <h2
         id="timeline-heading"
-        className="mb-8 text-caption font-semibold uppercase tracking-wider text-text-subtle"
+        className="mb-8 text-xl md:text-2xl font-display font-bold text-text"
       >
         Design Process
-      </p>
+      </h2>
 
       <div className="relative">
         {/* Animated vertical line */}
@@ -52,8 +52,8 @@ export function CaseStudyTimeline({
               initial={{ opacity: 0, x: -12 }}
               animate={inView ? { opacity: 1, x: 0 } : undefined}
               transition={{
-                duration: 0.4,
-                ease: "easeOut",
+                duration: 0.5,
+                ease: [0.16, 1, 0.3, 1],
                 delay: 0.3 + i * 0.1,
               }}
             >

@@ -1,3 +1,5 @@
+import { Lock } from "@phosphor-icons/react/dist/ssr";
+
 interface CaseStudyNdaNoticeProps {
   /** Defaults to the standard note; pass a project-specific one if needed. */
   note?: string;
@@ -12,21 +14,7 @@ export function CaseStudyNdaNotice({ note = DEFAULT_NOTE, className = "" }: Case
     <p
       className={`mb-8 inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-body-sm text-text-muted ${className}`.trim()}
     >
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="shrink-0 text-text-subtle"
-        aria-hidden
-      >
-        <rect x="3" y="11" width="18" height="11" rx="2" />
-        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-      </svg>
+      <Lock weight="light" className="h-4 w-4 shrink-0 text-text-subtle" aria-hidden />
       {note}
     </p>
   );

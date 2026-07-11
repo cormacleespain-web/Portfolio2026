@@ -52,9 +52,9 @@ export function CaseStudyImpact({
       ref={ref}
       className={`my-16 rounded-2xl border border-border bg-surface px-6 py-10 sm:px-10 ${className}`.trim()}
     >
-      <p className="mb-8 text-caption font-semibold uppercase tracking-wider text-text-subtle">
+      <h2 className="mb-8 text-xl md:text-2xl font-display font-bold text-text">
         Key Results
-      </p>
+      </h2>
       <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
         {metrics.map((m, i) => (
           <motion.div
@@ -62,8 +62,8 @@ export function CaseStudyImpact({
             initial={{ opacity: 0, y: 16 }}
             animate={inView ? { opacity: 1, y: 0 } : undefined}
             transition={{
-              duration: 0.45,
-              ease: "easeOut",
+              duration: 0.55,
+              ease: [0.16, 1, 0.3, 1],
               delay: i * 0.1,
             }}
             className="text-center"

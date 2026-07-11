@@ -399,6 +399,40 @@ html.arrival-dismissed #main-content {
   .page-grid-span-full {
     grid-column: 1 / -1;
   }
+
+  /* Double-bezel: nested "machined hardware" card architecture (outer shell + inner core). Reserved for major cards/hero art per the two-tier radius scale — see oneshot/design-system.md. */
+  .bezel-outer {
+    position: relative;
+    border-radius: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.375rem;
+  }
+  .bezel-inner {
+    position: relative;
+    overflow: hidden;
+    border-radius: calc(2rem - 0.375rem);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.14);
+  }
+
+  /* Button-in-button: trailing icon nested in its own circular wrapper, flush with the button's inner padding.
+     Default assumes a dark button fill (well = light-on-dark); use .btn-icon-well-on-light for white/light-fill buttons. */
+  .btn-icon-well {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+    width: 2rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.12);
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .btn-icon-well-on-light {
+    background: rgba(0, 0, 0, 0.08);
+  }
+  .group:hover .btn-icon-well {
+    transform: translate(0.125rem, -0.0625rem) scale(1.05);
+  }
 }
 
 /* Animated gradient border for experience cards */
@@ -463,36 +497,6 @@ html.arrival-dismissed #main-content {
 
 .selected-works-card {
   scroll-margin-top: 0;
-}
-
-/* Selected work cards: underglow on hover (same as featured employer card) */
-.selected-work-glow-outer {
-  position: relative;
-  overflow: visible;
-  border-radius: 0.75rem;
-}
-
-.selected-work-glow-outer::after {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  z-index: -1;
-  border-radius: calc(0.75rem + 2px);
-  --glow-angle: 0deg;
-  background: conic-gradient(
-    from var(--glow-angle),
-    var(--color-accent),
-    var(--color-accent-2),
-    var(--color-accent)
-  );
-  filter: blur(6px);
-  opacity: 0;
-  animation: glow-gradient-spin 8s linear infinite;
-  transition: opacity 0.3s ease;
-}
-
-.selected-work-glow-outer:hover::after {
-  opacity: 0.5;
 }
 
 .exp-gradient-border {
@@ -724,31 +728,6 @@ html.dark .starfield .star {
   }
 }
 
-/* Arrival cover: rotating action word (Scroll / Swipe / Drag), centered, subtle transition */
-.arrival-cover-action-line {
-  font-size: 1.125rem;
-  letter-spacing: 0.05em;
-}
-.arrival-cover-action-word {
-  display: inline-block;
-  animation: arrival-cover-word-in 0.45s ease-out;
-}
-@keyframes arrival-cover-word-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .arrival-cover-action-word {
-    animation: none;
-  }
-}
-
 /* Arrival cover: glow strip along full bottom edge – intro from below, grows on scroll via inline style */
 .arrival-cover-edge-glow {
   position: absolute;
@@ -781,16 +760,9 @@ html.dark .starfield .star {
   --glow-angle: 0deg;
   background: conic-gradient(
     from var(--glow-angle),
-    var(--color-accent) 0%,
-    var(--color-accent) 8%,
-    #8b5cf6 20%,
-    #7c3aed 32%,
-    #c084fc 44%,
-    #ec4899 56%,
-    #f472b6 68%,
-    var(--color-accent) 80%,
-    var(--color-accent) 92%,
-    var(--color-accent) 100%
+    var(--color-accent),
+    var(--color-accent-2),
+    var(--color-accent)
   );
   filter: blur(12px);
   opacity: 0.5;
@@ -801,49 +773,6 @@ html.dark .starfield .star {
     animation: none;
   }
   .arrival-cover-edge-glow-inner {
-    animation: none;
-  }
-}
-
-/* Arrival cover: conic glow along full bottom edge – appears on scroll */
-.arrival-cover-conic-glow {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  height: 80px;
-  overflow: visible;
-  pointer-events: none;
-}
-.arrival-cover-conic-glow-inner {
-  position: absolute;
-  left: -10%;
-  right: -10%;
-  bottom: -30px;
-  height: 140px;
-  z-index: -1;
-  border-radius: 50%;
-  --glow-angle: 0deg;
-  background: conic-gradient(
-    from var(--glow-angle),
-    var(--color-accent) 0%,
-    var(--color-accent) 8%,
-    #8b5cf6 20%,
-    #7c3aed 32%,
-    #c084fc 44%,
-    #ec4899 56%,
-    #f472b6 68%,
-    var(--color-accent) 80%,
-    var(--color-accent) 92%,
-    var(--color-accent) 100%
-  );
-  filter: blur(24px);
-  opacity: 0.5;
-  animation: glow-gradient-spin 8s linear infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .arrival-cover-conic-glow-inner {
     animation: none;
   }
 }

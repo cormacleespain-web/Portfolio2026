@@ -4,55 +4,34 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, useRef, type ReactElement } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { House, Briefcase, Info, Envelope, ChatCircle, Plus } from "@phosphor-icons/react";
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 import { useArrivalDismissed } from "@/hooks/useArrivalDismissed";
 
+const NAV_ICON_WEIGHT = "light";
+
 function HomeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden>
-      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-    </svg>
-  );
+  return <House weight={NAV_ICON_WEIGHT} className="h-5 w-5" aria-hidden />;
 }
 
 function BriefcaseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden>
-      <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z" />
-    </svg>
-  );
+  return <Briefcase weight={NAV_ICON_WEIGHT} className="h-5 w-5" aria-hidden />;
 }
 
 function InfoIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden>
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-    </svg>
-  );
+  return <Info weight={NAV_ICON_WEIGHT} className="h-5 w-5" aria-hidden />;
 }
 
 function EmailIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden>
-      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-    </svg>
-  );
+  return <Envelope weight={NAV_ICON_WEIGHT} className="h-5 w-5" aria-hidden />;
 }
 
 function ChatBubbleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden>
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  );
+  return <ChatCircle weight={NAV_ICON_WEIGHT} className="h-5 w-5" aria-hidden />;
 }
 
 function PlusIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden>
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  );
+  return <Plus weight={NAV_ICON_WEIGHT} className="h-5 w-5" aria-hidden />;
 }
 
 type NavItem = {
